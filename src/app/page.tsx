@@ -11,14 +11,25 @@ import {
   Crown
 } from "lucide-react";
 
-const stats = [
-  { label: "Acervo Total", value: "2.842", icon: Package, color: "text-blue-400", bg: "bg-blue-500/15", trend: "+12%" },
-  { label: "Em Pleno Uso", value: "2.405", icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/15", trend: "94%" },
-  { label: "Em Manutenção", value: "32", icon: Wrench, color: "text-amber-400", bg: "bg-amber-500/15", trend: "-5%" },
-  { label: "Alertas", value: "05", icon: AlertTriangle, color: "text-yellow-400", bg: "bg-yellow-500/15", trend: "+2" },
-];
+import prisma from "@/lib/prisma";
 
-export default function Dashboard() {
+export default async function Dashboard() {
+  const totalAssets = await prisma.asset.count();
+  const activeAssets = await prisma.asset.count({ where: { status: { in: ['ACTIVE', 'IN_USE'] } } });
+  const maintenanceAssets = await prisma.asset.count({ where: { status: 'MAINTENANCE' } });
+  
+  // Agrupar por categoria
+  const categories = await prisma.asset.groupBy({
+    by: ['category'],
+    _count: { category: true }
+  });
+
+  const stats = [
+    { label: "Acervo Total", value: totalAssets.toString(), icon: Package, color: "text-blue-400", bg: "bg-blue-500/15", trend: "100%" },
+    { label: "Em Pleno Uso", value: activeAssets.toString(), icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/15", trend: totalAssets > 0 ? `${Math.round((activeAssets/totalAssets)*100)}%` : "0%" },
+    { label: "Em Manutenção", value: maintenanceAssets.toString(), icon: Wrench, color: "text-amber-400", bg: "bg-amber-500/15", trend: totalAssets > 0 ? `${Math.round((maintenanceAssets/totalAssets)*100)}%` : "0%" },
+    { label: "Alertas", value: "0", icon: AlertTriangle, color: "text-yellow-400", bg: "bg-yellow-500/15", trend: "0" },
+  ];
   return (
     <Shell>
       <div className="space-y-8">
@@ -111,10 +122,10 @@ export default function Dashboard() {
               Distribuição
             </h3>
             <div className="space-y-5 relative z-10">
-              <CategoryBar label="Infraestrutura" percent={65} color="bg-secondary" />
-              <CategoryBar label="Tecnologia" percent={42} color="bg-emerald-400" />
-              <CategoryBar label="Mobiliário" percent={18} color="bg-amber-400" />
-              <CategoryBar label="Veículos" percent={8} color="bg-blue-400" />
+              {categories.slice(0,4).map((c, i) => (
+                <CategoryBar key={c.category} label={c.category} percent={totalAssets > 0 ? Math.round((c._count.category / totalAssets) * 100) : 0} color={["bg-secondary", "bg-emerald-400", "bg-amber-400", "bg-blue-400"][i] || "bg-muted"} />
+              ))}
+              {categories.length === 0 && <p className="text-xs text-white/50 text-center mt-8">Nenhum dado cadastrado.</p>}
             </div>
             <div className="absolute top-0 right-0 w-48 h-48 bg-secondary/8 rounded-full -mr-24 -mt-24 blur-3xl" />
           </div>

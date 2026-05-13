@@ -12,11 +12,7 @@ import {
   FolderOpen,
 } from "lucide-react";
 
-const files = [
-  { id: "1", name: "Nota_Fiscal_2024.pdf", type: "PDF", size: "1.2 MB", date: "12/03/24", tag: "Fiscal", favorite: true },
-  { id: "2", name: "Manual_Servidor.docx", type: "WORD", size: "3.5 MB", date: "13/03/24", tag: "Manual", favorite: false },
-  { id: "3", name: "Foto_Rack_A3.jpg", type: "IMAGE", size: "2.1 MB", date: "14/03/24", tag: "Evidência", favorite: false },
-];
+import prisma from "@/lib/prisma";
 
 const typeIcon: Record<string, { color: string; bg: string }> = {
   PDF: { color: "text-emerald-400", bg: "bg-emerald-500/15" },
@@ -24,7 +20,11 @@ const typeIcon: Record<string, { color: string; bg: string }> = {
   WORD: { color: "text-amber-400", bg: "bg-amber-500/15" },
 };
 
-export default function DocumentsPage() {
+export default async function DocumentsPage() {
+  const files = await prisma.document.findMany({
+    orderBy: { createdAt: 'desc' }
+  });
+
   return (
     <Shell>
       <div className="space-y-6">
@@ -66,41 +66,49 @@ export default function DocumentsPage() {
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-              {files.map((file, i) => {
-                const t = typeIcon[file.type] || typeIcon.PDF;
-                return (
-                  <div
-                    key={file.id}
-                    className={`animate-in animate-in-delay-${i + 1} bg-card border border-border p-5 rounded-2xl card-hover group relative`}
-                  >
-                    <div className="flex justify-between items-start mb-4">
-                      <div className={`p-3 rounded-xl ${t.bg}`}>
-                        {file.type === "IMAGE" ? <FileImage className={`w-6 h-6 ${t.color}`} /> : <FileText className={`w-6 h-6 ${t.color}`} />}
+            {files.length === 0 ? (
+              <div className="bg-card border border-border p-8 rounded-2xl text-center text-muted-foreground flex flex-col items-center">
+                <FileText className="w-10 h-10 mb-3 opacity-20" />
+                <p className="text-sm font-bold text-foreground">Nenhum documento encontrado</p>
+                <p className="text-xs mt-1">Notas fiscais, fotos e contratos vinculados aos patrimônios aparecerão aqui.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                {files.map((file, i) => {
+                  const t = typeIcon[file.type] || typeIcon.PDF;
+                  return (
+                    <div
+                      key={file.id}
+                      className={`animate-in animate-in-delay-${i + 1} bg-card border border-border p-5 rounded-2xl card-hover group relative`}
+                    >
+                      <div className="flex justify-between items-start mb-4">
+                        <div className={`p-3 rounded-xl ${t.bg}`}>
+                          {file.type === "PHOTO" ? <FileImage className={`w-6 h-6 ${t.color}`} /> : <FileText className={`w-6 h-6 ${t.color}`} />}
+                        </div>
+                        {file.isFavorite && <Star className="w-4 h-4 text-secondary fill-secondary" />}
                       </div>
-                      {file.favorite && <Star className="w-4 h-4 text-secondary fill-secondary" />}
-                    </div>
 
-                    <h4 className="text-sm font-bold text-foreground truncate">{file.name}</h4>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">{file.size} • {file.date}</p>
+                      <h4 className="text-sm font-bold text-foreground truncate">{file.name}</h4>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">{(Number(file.size)/1024/1024).toFixed(1)} MB • {new Date(file.createdAt).toLocaleDateString()}</p>
 
-                    <div className="mt-4 flex items-center justify-between">
-                      <span className="text-[10px] font-bold text-secondary bg-secondary/10 border border-secondary/15 px-2 py-0.5 rounded uppercase">
-                        {file.tag}
-                      </span>
-                      <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="p-1.5 bg-muted hover:bg-secondary rounded-lg text-muted-foreground hover:text-background transition-all">
-                          <Eye className="w-3.5 h-3.5" />
-                        </button>
-                        <button className="p-1.5 bg-muted hover:bg-secondary rounded-lg text-muted-foreground hover:text-background transition-all">
-                          <Download className="w-3.5 h-3.5" />
-                        </button>
+                      <div className="mt-4 flex items-center justify-between">
+                        <span className="text-[10px] font-bold text-secondary bg-secondary/10 border border-secondary/15 px-2 py-0.5 rounded uppercase">
+                          {file.type}
+                        </span>
+                        <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button className="p-1.5 bg-muted hover:bg-secondary rounded-lg text-muted-foreground hover:text-background transition-all">
+                            <Eye className="w-3.5 h-3.5" />
+                          </button>
+                          <button className="p-1.5 bg-muted hover:bg-secondary rounded-lg text-muted-foreground hover:text-background transition-all">
+                            <Download className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>

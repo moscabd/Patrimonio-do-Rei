@@ -9,13 +9,15 @@ import {
   AlertCircle
 } from "lucide-react";
 
-const audits = [
-  { id: "1", title: "Censo Patrimonial 2024", type: "ANUAL", status: "Em Andamento", progress: 65, auditor: "Carlos Silva" },
-  { id: "2", title: "Conferência TI", type: "SETORIAL", status: "Pendente", progress: 0, auditor: "Ana Clara" },
-  { id: "3", title: "Bens Móveis", type: "CÍCLICA", status: "Concluído", progress: 100, auditor: "Ricardo Porto" },
-];
+import prisma from "@/lib/prisma";
 
-export default function AuditPage() {
+export default async function AuditPage() {
+  const audits = await prisma.audit.findMany({
+    include: { auditor: true }
+  });
+
+  const totalAssets = await prisma.asset.count();
+  
   return (
     <Shell>
       <div className="space-y-6">
@@ -31,56 +33,64 @@ export default function AuditPage() {
 
         {/* Audit Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
-          {audits.map((audit, i) => (
-            <div
-              key={audit.id}
-              className={`animate-in animate-in-delay-${i + 1} bg-card border border-border rounded-2xl p-6 card-hover relative overflow-hidden group`}
-            >
-              <div className="flex justify-between items-start mb-4">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-secondary bg-secondary/10 border border-secondary/15 px-2.5 py-1 rounded-md">
-                  {audit.type}
-                </span>
-                <span className={`text-[10px] font-bold uppercase tracking-wider ${
-                  audit.status === "Concluído" ? "text-emerald-400" : audit.status === "Pendente" ? "text-muted-foreground" : "text-amber-400"
-                }`}>
-                  {audit.status}
-                </span>
-              </div>
-
-              <h3 className="text-xl font-black text-foreground mb-2 leading-tight">{audit.title}</h3>
-
-              <div className="flex items-center gap-2 text-xs text-muted-foreground mb-6">
-                <User className="w-3.5 h-3.5 text-secondary" /> {audit.auditor}
-              </div>
-
-              {/* Progress */}
-              <div className="space-y-2">
-                <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider">
-                  <span className="text-muted-foreground">Progresso</span>
-                  <span className="text-secondary">{audit.progress}%</span>
-                </div>
-                <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-secondary rounded-full transition-all duration-1000"
-                    style={{ width: `${audit.progress}%` }}
-                  />
-                </div>
-              </div>
-
-              <div className="mt-6 pt-4 border-t border-border flex justify-between items-center">
-                <button className="text-xs font-bold text-secondary flex items-center gap-1.5 hover:text-secondary/80 transition-colors">
-                  {audit.status === "Concluído" ? "Ver Laudo" : "Continuar"} <ArrowRight className="w-3 h-3" />
-                </button>
-                <ShieldCheck className="w-5 h-5 text-muted-foreground group-hover:text-secondary transition-colors" />
-              </div>
-
-              {audit.status === "Concluído" && (
-                <div className="absolute top-3 right-3">
-                  <Star className="w-5 h-5 text-secondary fill-secondary" />
-                </div>
-              )}
+          {audits.length === 0 ? (
+            <div className="lg:col-span-3 bg-card border border-border p-8 rounded-2xl text-center text-muted-foreground flex flex-col items-center">
+              <ShieldCheck className="w-10 h-10 mb-3 opacity-20" />
+              <p className="text-sm font-bold text-foreground">Nenhuma auditoria em andamento</p>
+              <p className="text-xs mt-1">Os ciclos de conferência e laudos patrimoniais aparecerão aqui.</p>
             </div>
-          ))}
+          ) : (
+            audits.map((audit, i) => (
+              <div
+                key={audit.id}
+                className={`animate-in animate-in-delay-${(i % 3) + 1} bg-card border border-border rounded-2xl p-6 card-hover relative overflow-hidden group`}
+              >
+                <div className="flex justify-between items-start mb-4">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-secondary bg-secondary/10 border border-secondary/15 px-2.5 py-1 rounded-md">
+                    {audit.type}
+                  </span>
+                  <span className={`text-[10px] font-bold uppercase tracking-wider ${
+                    audit.status === "FINISHED" ? "text-emerald-400" : audit.status === "PENDING" ? "text-muted-foreground" : "text-amber-400"
+                  }`}>
+                    {audit.status}
+                  </span>
+                </div>
+
+                <h3 className="text-xl font-black text-foreground mb-2 leading-tight">{audit.name}</h3>
+
+                <div className="flex items-center gap-2 text-xs text-muted-foreground mb-6">
+                  <User className="w-3.5 h-3.5 text-secondary" /> {audit.auditor?.name || "Auditor Principal"}
+                </div>
+
+                {/* Progress */}
+                <div className="space-y-2">
+                  <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider">
+                    <span className="text-muted-foreground">Progresso</span>
+                    <span className="text-secondary">{audit.status === "FINISHED" ? "100" : "0"}%</span>
+                  </div>
+                  <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-secondary rounded-full transition-all duration-1000"
+                      style={{ width: `${audit.status === "FINISHED" ? 100 : 0}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-border flex justify-between items-center">
+                  <button className="text-xs font-bold text-secondary flex items-center gap-1.5 hover:text-secondary/80 transition-colors">
+                    {audit.status === "FINISHED" ? "Ver Laudo" : "Continuar"} <ArrowRight className="w-3 h-3" />
+                  </button>
+                  <ShieldCheck className="w-5 h-5 text-muted-foreground group-hover:text-secondary transition-colors" />
+                </div>
+
+                {audit.status === "FINISHED" && (
+                  <div className="absolute top-3 right-3">
+                    <Star className="w-5 h-5 text-secondary fill-secondary" />
+                  </div>
+                )}
+              </div>
+            ))
+          )}
         </div>
 
         {/* Summary */}
@@ -92,7 +102,7 @@ export default function AuditPage() {
             </div>
             <div className="flex gap-8 lg:gap-12">
               <div className="text-center">
-                <p className="text-3xl font-black text-secondary">2.842</p>
+                <p className="text-3xl font-black text-secondary">{totalAssets}</p>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-white/50 mt-1">Conferidos</p>
               </div>
               <div className="text-center">
