@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Plus, Download, Upload, X, Loader2 } from "lucide-react";
 import { createAsset, importAssets } from "@/app/actions/asset";
 
@@ -8,7 +9,12 @@ export default function AssetToolbar({ assets }: { assets: any[] }) {
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Exportar para CSV (Client side)
   const handleExport = () => {
@@ -93,8 +99,8 @@ export default function AssetToolbar({ assets }: { assets: any[] }) {
       </div>
 
       {/* Modal de Novo Patrimônio */}
-      {isNewModalOpen && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      {mounted && isNewModalOpen && createPortal(
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-card border border-border rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in">
             <div className="p-6 border-b border-border flex justify-between items-center">
               <h3 className="text-xl font-black text-foreground">Novo Patrimônio</h3>
@@ -152,12 +158,13 @@ export default function AssetToolbar({ assets }: { assets: any[] }) {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Modal de Importação */}
-      {isImportModalOpen && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      {mounted && isImportModalOpen && createPortal(
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-card border border-border rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden animate-in">
             <div className="p-6 border-b border-border flex justify-between items-center">
               <h3 className="text-xl font-black text-foreground">Importar CSV</h3>
@@ -194,7 +201,8 @@ export default function AssetToolbar({ assets }: { assets: any[] }) {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

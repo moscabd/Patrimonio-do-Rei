@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Info, FileText, History, Clock, Download, Plus, ShieldCheck, Edit3, X, Loader2 } from "lucide-react";
 import { updateAsset } from "@/app/actions/asset";
 
@@ -8,6 +9,11 @@ export default function DetailTabs({ asset }: { asset: any }) {
   const [activeTab, setActiveTab] = useState("info");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <>
@@ -128,8 +134,8 @@ export default function DetailTabs({ asset }: { asset: any }) {
       </div>
 
       {/* Modal de Edição */}
-      {isEditModalOpen && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      {mounted && isEditModalOpen && createPortal(
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-card border border-border rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in">
             <div className="p-6 border-b border-border flex justify-between items-center">
               <h3 className="text-xl font-black text-foreground">Editar Patrimônio</h3>
@@ -187,7 +193,8 @@ export default function DetailTabs({ asset }: { asset: any }) {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
