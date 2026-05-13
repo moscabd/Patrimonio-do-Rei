@@ -1,135 +1,109 @@
 import Shell from "@/components/layout/Shell";
 import { 
   ClipboardCheck, 
-  Search, 
-  QrCode, 
-  Plus, 
   CheckCircle2, 
-  XCircle, 
   AlertCircle,
-  Clock,
+  Plus, 
   User,
-  ArrowRight
+  ArrowRight,
+  ShieldCheck,
+  Star
 } from "lucide-react";
 
 const audits = [
-  { id: "1", title: "Inventário Geral 2024", type: "ANUAL", status: "Em Andamento", progress: 65, auditor: "Carlos Silva" },
-  { id: "2", title: "Conferência de TI - Unidade SP", type: "SETOR", status: "Pendente", progress: 0, auditor: "Ana Clara" },
-  { id: "3", title: "Auditoria Cíclica de Móveis", type: "CÍCLICO", status: "Concluído", progress: 100, auditor: "Ricardo Porto" },
+  { id: "1", title: "Censo Patrimonial Real 2024", type: "ANUAL", status: "Em Andamento", progress: 65, auditor: "Carlos Silva" },
+  { id: "2", title: "Conferência de Acervo TI", type: "SETORIAL", status: "Pendente", progress: 0, auditor: "Ana Clara" },
+  { id: "3", title: "Auditoria de Bens Móveis", type: "CÍCLICA", status: "Concluído", progress: 100, auditor: "Ricardo Porto" },
 ];
 
 export default function AuditPage() {
   return (
     <Shell>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
+      <div className="space-y-8">
+        <div className="flex justify-between items-end border-b-4 border-secondary/20 pb-8">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">Auditoria & Inventário</h2>
-            <p className="text-muted-foreground text-sm">Controle de integridade patrimonial através de conferência física.</p>
+            <h2 className="text-4xl font-black text-primary tracking-tighter">Auditoria Régia</h2>
+            <p className="text-primary/60 font-medium mt-2 italic text-lg text-primary">Conferência soberana da integridade do tesouro patrimonial.</p>
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-all">
-            <Plus className="w-4 h-4" /> Novo Inventário
+          <button className="flex items-center gap-2 px-8 py-4 bg-primary text-white rounded-2xl text-sm font-black uppercase hover:bg-primary/90 transition-all shadow-xl border-b-4 border-secondary">
+            <Plus className="w-5 h-5 text-secondary" /> Novo Ato de Auditoria
           </button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {audits.map(audit => (
-            <div key={audit.id} className="bg-card border border-border rounded-2xl p-6 relative overflow-hidden group">
-              <div className="flex justify-between items-start mb-4">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-primary bg-primary/10 px-2 py-1 rounded">
+            <div key={audit.id} className="bg-white border-2 border-secondary/10 rounded-[2.5rem] p-8 relative overflow-hidden shadow-xl group hover:border-secondary transition-all">
+              <div className="flex justify-between items-start mb-6">
+                <span className="text-[10px] font-black uppercase tracking-widest text-primary bg-secondary/30 px-3 py-1 rounded-lg border border-secondary/50">
                   {audit.type}
                 </span>
-                <span className={`text-[10px] font-bold uppercase ${
-                  audit.status === 'Concluído' ? 'text-emerald-500' : audit.status === 'Pendente' ? 'text-muted-foreground' : 'text-amber-500'
+                <span className={`text-[10px] font-black uppercase tracking-widest ${
+                  audit.status === 'Concluído' ? 'text-emerald-600' : audit.status === 'Pendente' ? 'text-primary/40' : 'text-amber-600'
                 }`}>
                   {audit.status}
                 </span>
               </div>
               
-              <h3 className="text-lg font-bold mb-2">{audit.title}</h3>
+              <h3 className="text-2xl font-black text-primary mb-3 leading-tight">{audit.title}</h3>
               
-              <div className="flex items-center gap-2 text-xs text-muted-foreground mb-6">
-                <User className="w-3 h-3" /> Auditor: {audit.auditor}
+              <div className="flex items-center gap-2 text-xs font-bold text-primary/40 mb-8 uppercase tracking-widest">
+                <User className="w-4 h-4 text-secondary" /> Auditor: {audit.auditor}
               </div>
 
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs mb-1">
-                  <span>Progresso da Conferência</span>
-                  <span className="font-bold">{audit.progress}%</span>
+              <div className="space-y-3">
+                <div className="flex justify-between text-xs font-black uppercase tracking-wider text-primary">
+                  <span>Progresso do Inventário</span>
+                  <span className="text-secondary">{audit.progress}%</span>
                 </div>
-                <div className="w-full h-1.5 bg-accent rounded-full overflow-hidden">
-                  <div className="h-full bg-primary transition-all duration-500" style={{ width: `${audit.progress}%` }}></div>
+                <div className="w-full h-3 bg-secondary/10 rounded-full overflow-hidden shadow-inner">
+                  <div className="h-full bg-secondary transition-all duration-1000 shadow-lg" style={{ width: `${audit.progress}%` }}></div>
                 </div>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-border flex justify-between items-center">
-                <button className="text-xs font-bold text-primary flex items-center gap-1">
-                   {audit.status === 'Concluído' ? 'Ver Relatório' : 'Continuar Checklist'} <ArrowRight className="w-3 h-3" />
+              <div className="mt-10 pt-6 border-t-2 border-secondary/10 flex justify-between items-center">
+                <button className="text-xs font-black text-primary flex items-center gap-2 hover:text-secondary transition-colors uppercase tracking-widest">
+                   {audit.status === 'Concluído' ? 'Ver Laudo Real' : 'Continuar Checklist'} <ArrowRight className="w-4 h-4" />
                 </button>
-                <div className="flex gap-2">
-                   <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
-                     <QrCode className="w-4 h-4" />
-                   </div>
+                <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary">
+                  <ShieldCheck className="w-6 h-6" />
                 </div>
               </div>
+
+              {/* Decorative Star for completed audits */}
+              {audit.status === 'Concluído' && (
+                <div className="absolute -top-4 -right-4 w-16 h-16 bg-secondary text-primary flex items-center justify-center rotate-45 shadow-lg">
+                  <Star className="w-6 h-6 -rotate-45 fill-primary" />
+                </div>
+              )}
             </div>
           ))}
         </div>
 
-        {/* Real-time Checklist Visualization */}
-        <div className="bg-card border border-border rounded-2xl overflow-hidden">
-          <div className="p-6 border-b border-border flex justify-between items-center">
-            <h3 className="text-lg font-bold">Resumo de Divergências Recentes</h3>
-            <div className="flex gap-4">
-               <SummaryMini icon={CheckCircle2} label="Encontrados" value="1,240" color="text-emerald-500" />
-               <SummaryMini icon={XCircle} label="Não Encontrados" value="12" color="text-rose-500" />
-               <SummaryMini icon={AlertCircle} label="Divergentes" value="08" color="text-amber-500" />
-            </div>
-          </div>
-          
-          <div className="p-0">
-             <div className="bg-accent/10 p-4 border-b border-border flex items-center justify-between text-xs text-muted-foreground font-bold uppercase tracking-widest">
-                <span>Ativo</span>
-                <span className="w-64 text-center">Tipo de Divergência</span>
-                <span className="w-48 text-right">Ação</span>
-             </div>
-             <DivergenceItem tag="PAT-122" name="Câmera Canon EOS" issue="Localização Incorreta" severity="low" />
-             <DivergenceItem tag="PAT-092" name="Nobreak 2kVA" issue="Etiqueta Danificada" severity="mid" />
-             <DivergenceItem tag="PAT-004" name="MacBook Pro 14" issue="Patrimônio não localizado" severity="high" />
-          </div>
+        {/* Real-time Summary Card */}
+        <div className="bg-primary text-white border-b-8 border-secondary rounded-[3rem] p-10 shadow-2xl relative overflow-hidden">
+           <div className="flex flex-col md:flex-row justify-between items-center gap-8 relative z-10">
+              <div>
+                 <h3 className="text-2xl font-black mb-2">Resumo da Integridade</h3>
+                 <p className="text-secondary font-bold opacity-80 italic">Status em tempo real de todo o acervo patrimonial.</p>
+              </div>
+              <div className="flex gap-12">
+                 <BigStat label="Conferidos" value="2.842" color="text-secondary" />
+                 <BigStat label="Divergentes" value="12" color="text-amber-400" />
+                 <BigStat label="Em Risco" value="0" color="text-emerald-400" />
+              </div>
+           </div>
+           <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/5 rounded-full -mb-48 -mr-48 blur-3xl"></div>
         </div>
       </div>
     </Shell>
   );
 }
 
-function SummaryMini({ icon: Icon, label, value, color }: { icon: any, label: string, value: string, color: string }) {
+function BigStat({ label, value, color }: { label: string, value: string, color: string }) {
   return (
-    <div className="flex flex-col items-center">
-       <div className={`flex items-center gap-1 font-bold ${color}`}>
-          <Icon className="w-3 h-3" /> {value}
-       </div>
-       <span className="text-[10px] text-muted-foreground uppercase">{label}</span>
-    </div>
-  );
-}
-
-function DivergenceItem({ tag, name, issue, severity }: { tag: string, name: string, issue: string, severity: 'low' | 'mid' | 'high' }) {
-  return (
-    <div className="p-4 flex items-center justify-between hover:bg-accent/10 transition-colors border-b border-border last:border-0">
-      <div className="flex items-center gap-4">
-        <span className="font-mono text-xs font-bold bg-accent px-2 py-1 rounded">{tag}</span>
-        <span className="text-sm font-medium">{name}</span>
-      </div>
-      
-      <div className="w-64 flex items-center justify-center gap-2">
-         <span className={`w-2 h-2 rounded-full ${severity === 'high' ? 'bg-rose-500' : severity === 'mid' ? 'bg-amber-500' : 'bg-blue-500'}`}></span>
-         <span className="text-xs font-semibold">{issue}</span>
-      </div>
-
-      <div className="w-48 flex justify-end">
-         <button className="text-[10px] font-bold text-primary hover:underline uppercase">Tratar agora</button>
-      </div>
+    <div className="text-center">
+       <p className={`text-4xl font-black ${color}`}>{value}</p>
+       <p className="text-[10px] font-black uppercase tracking-[0.2em] mt-2 opacity-60">{label}</p>
     </div>
   );
 }

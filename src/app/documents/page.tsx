@@ -4,125 +4,85 @@ import Shell from "@/components/layout/Shell";
 import { 
   FileText, 
   Search, 
-  Filter, 
   Upload, 
   Download, 
   Eye, 
-  Trash2, 
-  Tag, 
-  Folder, 
   Star,
-  MoreHorizontal,
-  FileCode,
   FileImage,
-  Video,
-  Music
+  FolderOpen,
+  Plus
 } from "lucide-react";
-import { useState } from "react";
 
 const files = [
-  { id: "1", name: "Nota_Fiscal_2024_01.pdf", type: "PDF", size: "1.2 MB", date: "12/03/24", tag: "Fiscal", favorite: true },
-  { id: "2", name: "Manual_Servidor_PowerEdge.docx", type: "WORD", size: "3.5 MB", date: "13/03/24", tag: "Manual" },
-  { id: "3", name: "Foto_Instalacao_RackA3.jpg", type: "IMAGE", size: "2.1 MB", date: "14/03/24", tag: "Evidência" },
-  { id: "4", name: "Relatorio_Auditoria_Q1.xlsx", type: "EXCEL", size: "840 KB", date: "15/03/24", tag: "Relatório" },
+  { id: "1", name: "Nota_Fiscal_Realeza_2024.pdf", type: "PDF", size: "1.2 MB", date: "12/03/24", tag: "Fiscal", favorite: true },
+  { id: "2", name: "Manual_Servidor_Imperial.docx", type: "WORD", size: "3.5 MB", date: "13/03/24", tag: "Manual" },
+  { id: "3", name: "Evidencia_Posse_RackA3.jpg", type: "IMAGE", size: "2.1 MB", date: "14/03/24", tag: "Evidência" },
 ];
 
 export default function DocumentsPage() {
-  const [dragActive, setDragActive] = useState(false);
-
   return (
     <Shell>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
+      <div className="space-y-8">
+        <div className="flex justify-between items-end border-b-4 border-secondary/20 pb-8">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">Repositório Documental</h2>
-            <p className="text-muted-foreground text-sm">Central de documentos corporativos com rastreabilidade total.</p>
+            <h2 className="text-4xl font-black text-primary tracking-tighter">Documentação Régia</h2>
+            <p className="text-primary/60 font-medium mt-2 italic text-lg text-primary">Arquivos e evidências protegidos pela soberania do sistema.</p>
           </div>
-          <div className="flex gap-3">
-             <button className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-accent">
-               <Folder className="w-4 h-4" /> Nova Pasta
-             </button>
-             <button className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-all">
-               <Upload className="w-4 h-4" /> Upload de Arquivos
-             </button>
-          </div>
-        </div>
-
-        {/* Professional Dropzone */}
-        <div 
-          className={`h-32 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center transition-all ${
-            dragActive ? "border-primary bg-primary/5" : "border-border bg-accent/10"
-          }`}
-          onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
-          onDragLeave={() => setDragActive(false)}
-          onDrop={() => setDragActive(false)}
-        >
-          <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center mb-2">
-             <Upload className="w-5 h-5 text-muted-foreground" />
-          </div>
-          <p className="text-sm font-medium">Arraste seus arquivos para upload automático</p>
-          <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1">PDF, Imagens, Word, Excel (Max 50MB)</p>
+          <button className="flex items-center gap-2 px-8 py-4 bg-primary text-white rounded-2xl text-sm font-black uppercase hover:bg-primary/90 transition-all shadow-xl border-b-4 border-secondary">
+            <Upload className="w-5 h-5 text-secondary" /> Novo Upload
+          </button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Sidebar Filters */}
-          <aside className="space-y-6">
-            <div className="space-y-1">
-               <FilterNavItem label="Todos os Arquivos" icon={FileText} active />
-               <FilterNavItem label="Favoritos" icon={Star} />
-               <FilterNavItem label="Recentes" icon={Clock} />
-               <FilterNavItem label="Lixeira" icon={Trash2} />
+          {/* Sidebar Nav - Royal Style */}
+          <aside className="space-y-4">
+            <div className="bg-white border-2 border-secondary/20 rounded-3xl p-6 shadow-md">
+               <h3 className="text-xs font-black uppercase tracking-widest text-secondary mb-6">Categorias</h3>
+               <nav className="space-y-2">
+                  <DocumentNavItem label="Todos os Atos" active />
+                  <DocumentNavItem label="Favoritos Reais" />
+                  <DocumentNavItem label="Recentes" />
+               </nav>
             </div>
-
-            <div className="pt-6 border-t border-border">
-               <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-4">Tipos de Arquivo</p>
-               <div className="space-y-1">
-                 <TypeItem label="Documentos PDF" count={12} color="bg-rose-500" />
-                 <TypeItem label="Imagens & Fotos" count={45} color="bg-blue-500" />
-                 <TypeItem label="Planilhas & Dados" count={8} color="bg-emerald-500" />
-                 <TypeItem label="Mídia / Vídeos" count={2} color="bg-amber-500" />
-               </div>
+            
+            <div className="bg-primary text-white rounded-3xl p-6 shadow-xl border-b-4 border-secondary">
+               <p className="text-[10px] font-black uppercase tracking-widest text-secondary mb-4">Integridade</p>
+               <p className="text-xs font-medium opacity-80 leading-relaxed">Todos os documentos são criptografados e armazenados com redundância tripla no Reino.</p>
             </div>
           </aside>
 
           {/* Files Grid */}
           <div className="lg:col-span-3 space-y-6">
-            <div className="flex items-center gap-4 bg-card border border-border p-3 rounded-xl">
-               <Search className="w-4 h-4 text-muted-foreground ml-2" />
-               <input type="text" placeholder="Pesquisar por nome ou conteúdo (OCR)..." className="flex-1 bg-transparent border-none text-sm focus:outline-none" />
-               <div className="flex gap-2">
-                  <button className="p-2 hover:bg-accent rounded-lg"><Filter className="w-4 h-4" /></button>
-               </div>
+            <div className="bg-white border-2 border-secondary/20 p-4 rounded-2xl flex items-center gap-4 shadow-sm">
+               <Search className="w-5 h-5 text-secondary ml-2" />
+               <input type="text" placeholder="Buscar no arquivo morto do Reino..." className="flex-1 bg-transparent border-none text-sm font-bold text-primary focus:outline-none" />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                {files.map(file => (
-                 <div key={file.id} className="bg-card border border-border p-4 rounded-2xl group hover:border-primary/50 transition-all relative">
-                    <div className="flex justify-between items-start mb-4">
-                       <div className={`p-3 rounded-xl ${
-                         file.type === 'PDF' ? 'bg-rose-500/10 text-rose-500' : 
-                         file.type === 'IMAGE' ? 'bg-blue-500/10 text-blue-500' : 'bg-emerald-500/10 text-emerald-500'
-                       }`}>
-                          {file.type === 'IMAGE' ? <FileImage className="w-6 h-6" /> : <FileText className="w-6 h-6" />}
+                 <div key={file.id} className="bg-white border-2 border-secondary/10 p-6 rounded-[2rem] group hover:border-secondary transition-all relative shadow-lg">
+                    <div className="flex justify-between items-start mb-6">
+                       <div className={`p-4 rounded-2xl ${
+                         file.type === 'PDF' ? 'bg-emerald-100 text-emerald-600' : 
+                         file.type === 'IMAGE' ? 'bg-blue-100 text-blue-600' : 'bg-amber-100 text-amber-600'
+                       } shadow-inner`}>
+                          {file.type === 'IMAGE' ? <FileImage className="w-8 h-8" /> : <FileText className="w-8 h-8" />}
                        </div>
-                       <button className="p-1 text-muted-foreground hover:text-white"><MoreHorizontal className="w-4 h-4" /></button>
+                       {file.favorite && <Star className="w-5 h-5 text-secondary fill-secondary animate-pulse" />}
                     </div>
 
-                    <h4 className="text-sm font-bold truncate pr-4">{file.name}</h4>
-                    <p className="text-[10px] text-muted-foreground uppercase mt-1">{file.size} • {file.date}</p>
+                    <h4 className="text-sm font-black text-primary truncate pr-4">{file.name}</h4>
+                    <p className="text-[10px] text-primary/40 font-bold uppercase mt-2 tracking-widest">{file.size} • {file.date}</p>
 
-                    <div className="mt-4 flex items-center justify-between">
+                    <div className="mt-6 flex items-center justify-between">
                        <div className="flex items-center gap-2">
-                          <Tag className="w-3 h-3 text-primary" />
-                          <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded uppercase">{file.tag}</span>
+                          <span className="text-[10px] font-black text-primary bg-secondary/10 border border-secondary/20 px-3 py-1 rounded-lg uppercase">{file.tag}</span>
                        </div>
-                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                          <button className="p-1.5 hover:bg-accent rounded text-muted-foreground" title="Preview"><Eye className="w-4 h-4" /></button>
-                          <button className="p-1.5 hover:bg-accent rounded text-muted-foreground" title="Download"><Download className="w-4 h-4" /></button>
+                       <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                          <button className="p-2 bg-secondary/10 hover:bg-secondary rounded-xl text-secondary hover:text-primary transition-all"><Eye className="w-4 h-4" /></button>
+                          <button className="p-2 bg-secondary/10 hover:bg-secondary rounded-xl text-secondary hover:text-primary transition-all"><Download className="w-4 h-4" /></button>
                        </div>
                     </div>
-
-                    {file.favorite && <Star className="absolute top-4 right-10 w-3 h-3 text-amber-500 fill-amber-500" />}
                  </div>
                ))}
             </div>
@@ -133,26 +93,12 @@ export default function DocumentsPage() {
   );
 }
 
-function FilterNavItem({ label, icon: Icon, active = false }: { label: string, icon: any, active?: boolean }) {
+function DocumentNavItem({ label, active = false }: { label: string, active?: boolean }) {
   return (
-    <button className={`flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-      active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"
+    <button className={`flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${
+      active ? "bg-secondary text-primary shadow-md" : "text-primary/40 hover:bg-secondary/10 hover:text-primary"
     }`}>
-       <Icon className="w-4 h-4" /> {label}
+       <FolderOpen className={`w-4 h-4 ${active ? "text-primary" : "text-secondary"}`} /> {label}
     </button>
   );
 }
-
-function TypeItem({ label, count, color }: { label: string, count: number, color: string }) {
-  return (
-    <div className="flex items-center justify-between px-3 py-2 text-xs">
-       <div className="flex items-center gap-3 text-muted-foreground">
-          <div className={`w-2 h-2 rounded-full ${color}`}></div>
-          {label}
-       </div>
-       <span className="font-bold">{count}</span>
-    </div>
-  );
-}
-
-const Clock = ({ className }: { className?: string }) => <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
