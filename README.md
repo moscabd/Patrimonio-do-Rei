@@ -1,6 +1,6 @@
-# Inventário do Rei
+# Patrimônio do Rei
 
-Sistema de gerenciamento de inventário colaborativo com Supabase.
+Sistema de gerenciamento patrimonial colaborativo com Supabase.
 
 ## Artefatos principais
 

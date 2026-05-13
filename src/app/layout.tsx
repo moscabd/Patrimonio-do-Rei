@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-display" });
 
 export const metadata: Metadata = {
-  title: "Inventário do Rei | Gestão Patrimonial Enterprise",
+  title: "Patrimônio do Rei | Gestão Patrimonial Enterprise",
   description: "Sistema avançado de controle e auditoria de ativos corporativos.",
 };
 

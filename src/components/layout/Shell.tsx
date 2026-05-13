@@ -54,7 +54,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             </div>
             <div>
               <span className="text-lg font-black tracking-tight gold-shimmer block leading-tight">
-                Inventário do Rei
+                Patrimônio do Rei
               </span>
               <span className="text-[9px] font-bold uppercase tracking-[0.25em] text-muted-foreground">
                 Gestão Patrimonial
