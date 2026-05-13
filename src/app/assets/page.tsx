@@ -22,10 +22,18 @@ const statusLabels: Record<string, string> = {
   "MAINTENANCE": "Em Manutenção",
 };
 
-export default async function AssetsPage() {
-  // Backend Specialist: Buscando dados REAIS do PostgreSQL/Supabase via Prisma
+export default async function AssetsPage({ searchParams }: { searchParams: { page?: string } }) {
+  const currentPage = Number(searchParams.page) || 1;
+  const pageSize = 15; // 15 itens por página
+
+  const totalAssets = await prisma.asset.count();
+  const totalPages = Math.ceil(totalAssets / pageSize) || 1;
+
+  // Backend Specialist: Buscando dados REAIS do PostgreSQL/Supabase via Prisma com Paginação
   const assets = await prisma.asset.findMany({
-    orderBy: { tagNumber: 'asc' }
+    orderBy: { tagNumber: 'asc' },
+    skip: (currentPage - 1) * pageSize,
+    take: pageSize
   });
 
   return (
@@ -125,14 +133,24 @@ export default async function AssetsPage() {
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-4 bg-muted/20 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-muted-foreground">
+          <div className="px-6 py-4 bg-muted/20 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Banco Real Conectado: {assets.length} registros
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Total de {totalAssets} patrimônios no banco (Página {currentPage} de {totalPages})
             </span>
             <div className="flex gap-2">
-              <button className="px-3 py-1.5 border border-border rounded-lg hover:bg-muted transition-colors">Anterior</button>
-              <button className="px-3 py-1.5 bg-secondary text-background rounded-lg font-bold">1</button>
-              <button className="px-3 py-1.5 border border-border rounded-lg hover:bg-muted transition-colors">Próximo</button>
+              {currentPage > 1 ? (
+                <Link href={`/assets?page=${currentPage - 1}`} className="px-3 py-1.5 border border-border rounded-lg hover:bg-muted transition-colors text-foreground">Anterior</Link>
+              ) : (
+                <button disabled className="px-3 py-1.5 border border-border/50 rounded-lg text-muted-foreground opacity-50 cursor-not-allowed">Anterior</button>
+              )}
+              
+              <button className="px-3 py-1.5 bg-secondary text-background rounded-lg font-bold">{currentPage}</button>
+              
+              {currentPage < totalPages ? (
+                <Link href={`/assets?page=${currentPage + 1}`} className="px-3 py-1.5 border border-border rounded-lg hover:bg-muted transition-colors text-foreground">Próximo</Link>
+              ) : (
+                <button disabled className="px-3 py-1.5 border border-border/50 rounded-lg text-muted-foreground opacity-50 cursor-not-allowed">Próximo</button>
+              )}
             </div>
           </div>
         </div>

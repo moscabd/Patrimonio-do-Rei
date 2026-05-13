@@ -58,11 +58,19 @@ export async function updateAsset(id: string, formData: FormData) {
 }
 
 export async function deleteAsset(id: string) {
+  // Manual cascade para evitar erro de Foreign Key
+  await prisma.auditChecklist.deleteMany({ where: { assetId: id } });
+  await prisma.document.deleteMany({ where: { assetId: id } });
   await prisma.asset.delete({ where: { id } });
   revalidatePath("/assets");
 }
 
 export async function deleteAllAssets() {
+  // Manual cascade para limpar tudo com segurança
+  await prisma.auditChecklist.deleteMany({});
+  await prisma.document.deleteMany({});
+  await prisma.assetHistory.deleteMany({});
+  await prisma.movement.deleteMany({});
   await prisma.asset.deleteMany({});
   revalidatePath("/assets");
 }
