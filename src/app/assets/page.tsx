@@ -2,13 +2,13 @@ import Shell from "@/components/layout/Shell";
 import {
   Plus,
   Filter,
-  Download,
   Search,
   ChevronRight,
   ShieldCheck,
 } from "lucide-react";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
+import AssetToolbar from "@/components/assets/AssetToolbar";
 
 const statusStyles: Record<string, string> = {
   "ACTIVE": "bg-emerald-500/15 text-emerald-400 border-emerald-500/20",
@@ -37,14 +37,7 @@ export default async function AssetsPage() {
             <h2 className="text-2xl lg:text-3xl font-black text-foreground tracking-tight">Patrimônios</h2>
             <p className="text-muted-foreground text-sm mt-1">Dados validados direto do Banco de Dados Real.</p>
           </div>
-          <div className="flex gap-3">
-            <button className="flex items-center gap-2 px-4 py-2.5 border border-secondary/30 text-secondary rounded-xl text-sm font-semibold hover:bg-secondary/10 transition-all">
-              <Download className="w-4 h-4" /> Exportar
-            </button>
-            <button className="flex items-center gap-2 px-5 py-2.5 bg-secondary text-background rounded-xl text-sm font-bold hover:bg-secondary/90 transition-all shadow-lg shadow-secondary/20">
-              <Plus className="w-4 h-4" /> Novo Patrimônio
-            </button>
-          </div>
+          <AssetToolbar assets={assets} />
         </div>
 
         {/* Search */}

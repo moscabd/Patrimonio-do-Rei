@@ -1,0 +1,93 @@
+"use server";
+
+import prisma from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
+
+// We assume there's at least one company from our seed
+async function getDefaultCompanyId() {
+  const company = await prisma.company.findFirst();
+  return company?.id || "";
+}
+
+export async function createAsset(formData: FormData) {
+  const companyId = await getDefaultCompanyId();
+  if (!companyId) throw new Error("No company found. Please seed the database.");
+
+  const tagNumber = formData.get("tagNumber") as string;
+  const name = formData.get("name") as string;
+  const category = formData.get("category") as string;
+  const status = formData.get("status") as any;
+  const currentValueRaw = formData.get("currentValue") as string;
+  const currentValue = currentValueRaw ? parseFloat(currentValueRaw.replace(',', '.')) : null;
+
+  await prisma.asset.create({
+    data: {
+      tagNumber,
+      name,
+      category,
+      status: status || "ACTIVE",
+      currentValue,
+      companyId,
+    },
+  });
+
+  revalidatePath("/assets");
+}
+
+export async function updateAsset(id: string, formData: FormData) {
+  const tagNumber = formData.get("tagNumber") as string;
+  const name = formData.get("name") as string;
+  const category = formData.get("category") as string;
+  const status = formData.get("status") as any;
+  const currentValueRaw = formData.get("currentValue") as string;
+  const currentValue = currentValueRaw ? parseFloat(currentValueRaw.replace(',', '.')) : null;
+
+  await prisma.asset.update({
+    where: { id },
+    data: {
+      tagNumber,
+      name,
+      category,
+      status,
+      currentValue,
+    },
+  });
+
+  revalidatePath("/assets");
+  revalidatePath(`/assets/${id}`);
+}
+
+export async function deleteAsset(id: string) {
+  await prisma.asset.delete({ where: { id } });
+  revalidatePath("/assets");
+}
+
+export async function importAssets(assetsData: any[]) {
+  const companyId = await getDefaultCompanyId();
+  if (!companyId) throw new Error("No company found.");
+
+  const dataToInsert = assetsData.map(item => ({
+    tagNumber: item.tagNumber || `REI-IMPORT-${Math.floor(Math.random()*10000)}`,
+    name: item.name || "Item Importado",
+    category: item.category || "Geral",
+    status: "ACTIVE" as any,
+    currentValue: item.currentValue ? parseFloat(item.currentValue) : null,
+    companyId
+  }));
+
+  // Using createMany to skip duplicates if any fail (not ideal for robust systems, but good for MVP)
+  for (const data of dataToInsert) {
+    try {
+      await prisma.asset.upsert({
+        where: { tagNumber: data.tagNumber },
+        update: { ...data },
+        create: { ...data }
+      });
+    } catch (e) {
+      console.error("Erro ao importar item:", data.tagNumber);
+    }
+  }
+
+  revalidatePath("/assets");
+  return { success: true, count: dataToInsert.length };
+}
