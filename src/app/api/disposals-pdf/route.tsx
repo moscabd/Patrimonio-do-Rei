@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import prisma from '@/lib/prisma';
 import { generateDisposalPDF } from '@/lib/pdf-generator';
 
@@ -11,25 +11,26 @@ export async function GET(request: NextRequest) {
     });
 
     if (disposals.length === 0) {
-      return NextResponse.json(
-        { error: 'Nenhum registro encontrado' },
-        { status: 404 }
-      );
+      return new Response('<html><body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;background:#1a1a2e;color:#aaa"><p style="text-align:center;font-size:18px">Nenhum registro encontrado</p></body></html>', {
+        status: 404,
+        headers: { 'Content-Type': 'text/html; charset=utf-8' },
+      });
     }
 
     const committee = await prisma.committee.findFirst();
     const pdfBytes = await generateDisposalPDF(disposals, committee);
-    const pdfBuffer = pdfBytes.buffer.slice(pdfBytes.byteOffset, pdfBytes.byteOffset + pdfBytes.byteLength) as ArrayBuffer;
+    const pdfBuffer = Buffer.from(pdfBytes);
 
-    return new NextResponse(new Blob([pdfBuffer], { type: 'application/pdf' }), {
+    return new Response(pdfBuffer, {
+      status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': 'attachment; filename="relatorio_descartes.pdf"',
+        'Content-Disposition': 'inline; filename="relatorio_descartes.pdf"',
       },
     });
   } catch (error) {
     console.error('Erro ao gerar PDF de descarte:', error);
-    return NextResponse.json(
+    return Response.json(
       { error: 'Erro ao gerar PDF: ' + (error instanceof Error ? error.message : 'Erro desconhecido') },
       { status: 500 }
     );
