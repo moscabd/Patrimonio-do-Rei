@@ -106,8 +106,60 @@ export default function AssetToolbar({ assets }: { assets: any[] }) {
   };
 
   const handleGeneratePdf = () => {
-    alert("O relatório PDF profissional contendo todos os patrimônios está sendo gerado e abrirá em uma nova aba. Por favor, aguarde alguns segundos!");
-    window.open('/api/pdf/report', '_blank');
+    const newWindow = window.open('', '_blank');
+    if (newWindow) {
+      newWindow.document.write(`
+        <html>
+          <head>
+            <title>Gerando Relatório PDF...</title>
+            <style>
+              body {
+                font-family: 'Inter', -apple-system, sans-serif;
+                background-color: #0B0F19;
+                color: #F3F4F6;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+                margin: 0;
+              }
+              .spinner {
+                border: 4px solid rgba(245, 158, 11, 0.1);
+                border-left-color: #F59E0B;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                animation: spin 1s linear infinite;
+                margin-bottom: 24px;
+              }
+              h2 {
+                font-weight: 800;
+                margin: 0 0 8px 0;
+                letter-spacing: -0.025em;
+              }
+              p {
+                color: #9CA3AF;
+                font-size: 14px;
+                margin: 0;
+              }
+              @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+            </style>
+          </head>
+          <body>
+            <div class="spinner"></div>
+            <h2>Gerando Relatório Patrimonial</h2>
+            <p>Carregando dados do Supabase e estruturando tabelas do PDF...</p>
+          </body>
+        </html>
+      `);
+      newWindow.location.href = '/api/pdf/report';
+    } else {
+      alert("O navegador bloqueou a abertura do relatório. Por favor, permita pop-ups para este site para que possamos abrir o PDF!");
+    }
   };
 
   return (
