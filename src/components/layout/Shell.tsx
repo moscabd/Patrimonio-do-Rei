@@ -12,7 +12,8 @@ import {
   UserCircle,
   Crown,
   Menu,
-  X
+  X,
+  FileSpreadsheet
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -23,6 +24,7 @@ const navItems = [
   { icon: ArrowLeftRight, label: "Movimentações", href: "/movements" },
   { icon: ClipboardCheck, label: "Auditoria", href: "/audit" },
   { icon: FileText, label: "Documentos", href: "/documents" },
+  { icon: FileSpreadsheet, label: "Converter Planilha", href: "/converter" },
 ];
 
 export default function Shell({ children }: { children: React.ReactNode }) {
