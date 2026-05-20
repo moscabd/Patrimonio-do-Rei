@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { pdf } from '@react-pdf/renderer';
-import { ReportPDF } from '@/components/pdf/ReportPDF';
+import { generateReportPDF } from '@/lib/pdf-generator';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,12 +31,10 @@ export async function GET(request: NextRequest) {
     }
 
     const committee = await prisma.committee.findFirst();
+    const pdfBytes = await generateReportPDF(assets, committee, { category, search });
+    const pdfBuffer = pdfBytes.buffer.slice(pdfBytes.byteOffset, pdfBytes.byteOffset + pdfBytes.byteLength) as ArrayBuffer;
 
-    const pdfDocument = <ReportPDF assets={assets} committee={committee} filters={{ category, search }} />;
-    const pdfBlob = await pdf(pdfDocument).toBlob();
-    const pdfBuffer = Buffer.from(await pdfBlob.arrayBuffer());
-
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(new Blob([pdfBuffer], { type: 'application/pdf' }), {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': 'attachment; filename="relatorio_patrimonios.pdf"',

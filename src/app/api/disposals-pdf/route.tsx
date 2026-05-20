@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { pdf } from '@react-pdf/renderer';
-import { DisposalPDF } from '@/components/pdf/DisposalPDF';
+import { generateDisposalPDF } from '@/lib/pdf-generator';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,12 +18,10 @@ export async function GET(request: NextRequest) {
     }
 
     const committee = await prisma.committee.findFirst();
+    const pdfBytes = await generateDisposalPDF(disposals, committee);
+    const pdfBuffer = pdfBytes.buffer.slice(pdfBytes.byteOffset, pdfBytes.byteOffset + pdfBytes.byteLength) as ArrayBuffer;
 
-    const pdfDocument = <DisposalPDF disposals={disposals} committee={committee} />;
-    const pdfBlob = await pdf(pdfDocument).toBlob();
-    const pdfBuffer = Buffer.from(await pdfBlob.arrayBuffer());
-
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(new Blob([pdfBuffer], { type: 'application/pdf' }), {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': 'attachment; filename="relatorio_descartes.pdf"',
@@ -33,7 +30,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Erro ao gerar PDF de descarte:', error);
     return NextResponse.json(
-      { error: 'Erro ao gerar PDF' },
+      { error: 'Erro ao gerar PDF: ' + (error instanceof Error ? error.message : 'Erro desconhecido') },
       { status: 500 }
     );
   }
