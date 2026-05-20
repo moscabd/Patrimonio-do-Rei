@@ -29,9 +29,10 @@ export async function GET(request: NextRequest) {
     const committee = await prisma.committee.findFirst();
 
     const pdfDocument = <AssetPDF asset={asset} committee={committee} />;
-    const pdfStream = await pdf(pdfDocument).toBlob();
+    const pdfBlob = await pdf(pdfDocument).toBlob();
+    const pdfBuffer = Buffer.from(await pdfBlob.arrayBuffer());
 
-    return new NextResponse(pdfStream, {
+    return new NextResponse(pdfBuffer, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="patrimonio_${asset.tagNumber}.pdf"`,

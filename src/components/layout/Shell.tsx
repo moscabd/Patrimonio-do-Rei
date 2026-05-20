@@ -14,7 +14,8 @@ import {
   Menu,
   X,
   FileSpreadsheet,
-  LogOut
+  LogOut,
+  Settings
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -27,6 +28,7 @@ const navItems = [
   { icon: ClipboardCheck, label: "Auditoria", href: "/audit" },
   { icon: FileText, label: "Documentos", href: "/documents" },
   { icon: FileSpreadsheet, label: "Converter Planilha", href: "/converter" },
+  { icon: Settings, label: "Configurações", href: "/settings" },
 ];
 
 export default function Shell({ children, user }: { children: React.ReactNode, user?: any }) {

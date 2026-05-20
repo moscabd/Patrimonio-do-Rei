@@ -297,6 +297,7 @@ model AuditLog {
 model Committee {
   id              String   @id @default(cuid())
   organization    String   @default("Núcleo REI RABINO")
+  cnpj            String   @default("09.621.597/0001-66")
   location        String   @default("PERDIGÃO/MG")
   president       String   @default("Càssio Eduardo Paiva")
   vicePresident   String   @default("EVANDRO APARECIDO MACHADO")

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Plus, Download, Upload, X, Loader2, Trash2 } from "lucide-react";
+import { Plus, Download, Upload, X, Loader2, Trash2, FileDown } from "lucide-react";
 import { createAsset, importAssets, deleteAllAssets } from "@/app/actions/asset";
 
 export default function AssetToolbar({ assets }: { assets: any[] }) {
@@ -126,6 +126,12 @@ export default function AssetToolbar({ assets }: { assets: any[] }) {
           className="flex items-center gap-2 px-4 py-2.5 border border-secondary/30 text-secondary rounded-xl text-sm font-semibold hover:bg-secondary/10 transition-all"
         >
           <Download className="w-4 h-4" /> Exportar
+        </button>
+        <button 
+          onClick={() => window.open('/api/pdf/report', '_blank')}
+          className="flex items-center gap-2 px-4 py-2.5 border border-secondary/30 text-secondary rounded-xl text-sm font-semibold hover:bg-secondary/10 transition-all"
+        >
+          <FileDown className="w-4 h-4" /> Relatório PDF
         </button>
         <button 
           onClick={() => setIsNewModalOpen(true)}

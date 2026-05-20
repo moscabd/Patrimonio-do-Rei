@@ -26,6 +26,7 @@ async function seed() {
       create: {
         id: 'default-committee',
         organization: 'Núcleo REI RABINO',
+        cnpj: '09.621.597/0001-66',
         location: 'PERDIGÃO/MG',
         president: 'Càssio Eduardo Paiva',
         vicePresident: 'EVANDRO APARECIDO MACHADO',

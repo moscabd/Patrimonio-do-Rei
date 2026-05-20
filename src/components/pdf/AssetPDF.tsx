@@ -1,215 +1,38 @@
-import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 
 const styles = StyleSheet.create({
-  page: {
-    padding: 40,
-    fontFamily: 'Helvetica',
-    backgroundColor: '#ffffff',
-  },
-  // Header
-  header: {
-    marginBottom: 30,
-    borderBottom: 3,
-    borderColor: '#d4af37',
-    paddingBottom: 20,
-  },
-  headerTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 15,
-  },
-  crown: {
-    fontSize: 32,
-    marginRight: 10,
-  },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#d4af37',
-    textAlign: 'center',
-    letterSpacing: 2,
-  },
-  headerSubtitle: {
-    fontSize: 11,
-    color: '#666666',
-    textAlign: 'center',
-    marginTop: 5,
-    letterSpacing: 1,
-  },
-  headerLocation: {
-    fontSize: 10,
-    color: '#999999',
-    textAlign: 'center',
-    marginTop: 3,
-  },
-  // Asset Info Section
-  assetSection: {
-    marginBottom: 25,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#d4af37',
-    marginBottom: 12,
-    paddingBottom: 5,
-    borderBottom: 1,
-    borderColor: '#e5e5e5',
-    letterSpacing: 1,
-  },
-  infoGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-  },
-  infoItem: {
-    width: '48%',
-    marginBottom: 12,
-  },
-  infoLabel: {
-    fontSize: 8,
-    color: '#999999',
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 3,
-  },
-  infoValue: {
-    fontSize: 11,
-    color: '#333333',
-    fontWeight: 'bold',
-  },
-  infoValueFull: {
-    width: '100%',
-  },
-  // Highlight box for tag number
-  tagBox: {
-    backgroundColor: '#d4af37',
-    padding: 12,
-    borderRadius: 6,
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  tagLabel: {
-    fontSize: 9,
-    color: '#ffffff',
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
-    letterSpacing: 2,
-    marginBottom: 4,
-  },
-  tagNumber: {
-    fontSize: 24,
-    color: '#ffffff',
-    fontWeight: 'bold',
-    letterSpacing: 3,
-  },
-  // Financial section
-  financialBox: {
-    backgroundColor: '#f8f6f0',
-    border: 1,
-    borderColor: '#d4af37',
-    borderRadius: 6,
-    padding: 15,
-    marginBottom: 20,
-  },
-  financialRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  financialLabel: {
-    fontSize: 9,
-    color: '#666666',
-    fontWeight: 'bold',
-  },
-  financialValue: {
-    fontSize: 11,
-    color: '#d4af37',
-    fontWeight: 'bold',
-  },
-  // Status badge
-  statusBadge: {
-    padding: 6,
-    borderRadius: 4,
-    textAlign: 'center',
-    marginBottom: 15,
-  },
-  statusText: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  // Committee section
-  committeeSection: {
-    marginTop: 40,
-    borderTop: 2,
-    borderColor: '#d4af37',
-    paddingTop: 20,
-  },
-  committeeTitle: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#d4af37',
-    textAlign: 'center',
-    marginBottom: 15,
-    letterSpacing: 1,
-  },
-  committeeGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: 15,
-  },
-  committeeMember: {
-    width: '48%',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  memberRole: {
-    fontSize: 7,
-    color: '#999999',
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 3,
-  },
-  memberName: {
-    fontSize: 9,
-    color: '#333333',
-    fontWeight: 'bold',
-  },
-  signatureLine: {
-    borderTop: 1,
-    borderColor: '#cccccc',
-    marginTop: 30,
-    paddingTop: 5,
-  },
-  // Footer
-  footer: {
-    position: 'absolute',
-    bottom: 30,
-    left: 40,
-    right: 40,
-    textAlign: 'center',
-    borderTop: 1,
-    borderColor: '#e5e5e5',
-    paddingTop: 10,
-  },
-  footerText: {
-    fontSize: 7,
-    color: '#999999',
-    letterSpacing: 0.5,
-  },
-  // Page number
-  pageNumber: {
-    position: 'absolute',
-    bottom: 15,
-    right: 40,
-    fontSize: 8,
-    color: '#cccccc',
-  },
+  page: { padding: 40, fontFamily: 'Helvetica', backgroundColor: '#ffffff' },
+  header: { marginBottom: 30, borderBottom: 3, borderColor: '#d4af37', paddingBottom: 20 },
+  headerTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 15 },
+  crown: { fontSize: 28, marginRight: 10, color: '#d4af37' },
+  headerTitle: { fontSize: 22, fontWeight: 'bold', color: '#d4af37', textAlign: 'center', letterSpacing: 2 },
+  headerSubtitle: { fontSize: 11, color: '#666666', textAlign: 'center', marginTop: 5, letterSpacing: 1 },
+  headerLocation: { fontSize: 10, color: '#999999', textAlign: 'center', marginTop: 3 },
+  cnpjText: { fontSize: 10, color: '#666666', textAlign: 'center', marginTop: 3 },
+  assetSection: { marginBottom: 25 },
+  sectionTitle: { fontSize: 14, fontWeight: 'bold', color: '#d4af37', marginBottom: 12, paddingBottom: 5, borderBottom: 1, borderColor: '#e5e5e5', letterSpacing: 1 },
+  infoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  infoItem: { width: '48%', marginBottom: 12 },
+  infoLabel: { fontSize: 8, color: '#999999', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 3 },
+  infoValue: { fontSize: 11, color: '#333333', fontWeight: 'bold' },
+  tagBox: { backgroundColor: '#d4af37', padding: 12, borderRadius: 6, marginBottom: 20, textAlign: 'center' },
+  tagLabel: { fontSize: 9, color: '#ffffff', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 2, marginBottom: 4 },
+  tagNumber: { fontSize: 24, color: '#ffffff', fontWeight: 'bold', letterSpacing: 3 },
+  financialBox: { backgroundColor: '#f8f6f0', border: 1, borderColor: '#d4af37', borderRadius: 6, padding: 15, marginBottom: 20 },
+  financialRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+  financialLabel: { fontSize: 9, color: '#666666', fontWeight: 'bold' },
+  financialValue: { fontSize: 11, color: '#d4af37', fontWeight: 'bold' },
+  statusBadge: { padding: 6, borderRadius: 4, textAlign: 'center', marginBottom: 15 },
+  statusText: { fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 1 },
+  committeeSection: { marginTop: 40, borderTop: 2, borderColor: '#d4af37', paddingTop: 20 },
+  committeeTitle: { fontSize: 12, fontWeight: 'bold', color: '#d4af37', textAlign: 'center', marginBottom: 15, letterSpacing: 1 },
+  committeeGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 15 },
+  committeeMember: { width: '48%', marginBottom: 20, textAlign: 'center' },
+  memberRole: { fontSize: 7, color: '#999999', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 3 },
+  memberName: { fontSize: 9, color: '#333333', fontWeight: 'bold' },
+  signatureLine: { borderTop: 1, borderColor: '#cccccc', marginTop: 30, paddingTop: 5 },
+  footer: { position: 'absolute', bottom: 30, left: 40, right: 40, textAlign: 'center', borderTop: 1, borderColor: '#e5e5e5', paddingTop: 10 },
+  footerText: { fontSize: 7, color: '#999999', letterSpacing: 0.5 },
 });
 
 const statusConfig: Record<string, { bg: string; color: string; label: string }> = {
@@ -238,7 +61,6 @@ export const AssetPDF = ({ asset, committee }: { asset: any; committee: any }) =
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerTop}>
             <Text style={styles.crown}>👑</Text>
@@ -247,18 +69,19 @@ export const AssetPDF = ({ asset, committee }: { asset: any; committee: any }) =
           <Text style={styles.headerSubtitle}>
             Comissão de Patrimônio do {committee?.organization || 'Núcleo REI RABINO'}
           </Text>
+          <Text style={styles.cnpjText}>
+            CNPJ: {committee?.cnpj || '09.621.597/0001-66'}
+          </Text>
           <Text style={styles.headerLocation}>
             {committee?.location || 'PERDIGÃO/MG'} • {currentDate}
           </Text>
         </View>
 
-        {/* Tag Number Highlight */}
         <View style={styles.tagBox}>
           <Text style={styles.tagLabel}>Código do Patrimônio</Text>
           <Text style={styles.tagNumber}>{asset.tagNumber}</Text>
         </View>
 
-        {/* Asset Information */}
         <View style={styles.assetSection}>
           <Text style={styles.sectionTitle}>Informações do Bem</Text>
           <View style={styles.infoGrid}>
@@ -297,14 +120,12 @@ export const AssetPDF = ({ asset, committee }: { asset: any; committee: any }) =
           </View>
         </View>
 
-        {/* Status */}
         <View style={[styles.statusBadge, { backgroundColor: status.bg }]}>
           <Text style={[styles.statusText, { color: status.color }]}>
             Status: {status.label}
           </Text>
         </View>
 
-        {/* Financial Information */}
         <View style={styles.financialBox}>
           <Text style={styles.sectionTitle}>Informações Financeiras</Text>
           <View style={styles.financialRow}>
@@ -331,7 +152,6 @@ export const AssetPDF = ({ asset, committee }: { asset: any; committee: any }) =
           )}
         </View>
 
-        {/* Location Information */}
         <View style={styles.assetSection}>
           <Text style={styles.sectionTitle}>Localização e Responsáveis</Text>
           <View style={styles.infoGrid}>
@@ -346,7 +166,6 @@ export const AssetPDF = ({ asset, committee }: { asset: any; committee: any }) =
           </View>
         </View>
 
-        {/* Committee Section */}
         <View style={styles.committeeSection}>
           <Text style={styles.committeeTitle}>Comissão de Patrimônio</Text>
           <View style={styles.committeeGrid}>
@@ -378,7 +197,6 @@ export const AssetPDF = ({ asset, committee }: { asset: any; committee: any }) =
           </View>
         </View>
 
-        {/* Footer */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>
             Documento gerado automaticamente pelo Sistema Patrimônio do Rei • {currentDate}
