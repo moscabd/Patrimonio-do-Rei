@@ -82,34 +82,32 @@ export default async function AssetsPage({ searchParams }: { searchParams: { pag
           <AssetToolbar assets={assets} />
         </div>
 
-        {/* Category Filter */}
-        <div className="bg-card border border-border rounded-2xl p-4">
-          <p className="text-xs font-bold text-secondary uppercase tracking-widest mb-3">Filtrar por Categoria</p>
-          <div className="flex gap-2 flex-wrap">
+        {/* Category Filter - Subtle */}
+        <div className="flex gap-2 flex-wrap items-center text-xs">
+          <span className="text-muted-foreground font-semibold">Categoria:</span>
+          <Link
+            href="/assets"
+            className={`px-2.5 py-1 rounded text-xs transition-all ${
+              !selectedCategory
+                ? 'bg-secondary/20 text-secondary font-semibold'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Todas
+          </Link>
+          {categories.map((cat) => (
             <Link
-              href="/assets"
-              className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
-                !selectedCategory
-                  ? 'bg-secondary text-background'
-                  : 'border border-border text-foreground hover:bg-muted'
+              key={cat.category}
+              href={`/assets?category=${encodeURIComponent(cat.category || '')}`}
+              className={`px-2.5 py-1 rounded text-xs transition-all ${
+                selectedCategory === cat.category
+                  ? 'bg-secondary/20 text-secondary font-semibold'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              Todas
+              {cat.category || 'Sem categoria'}
             </Link>
-            {categories.map((cat) => (
-              <Link
-                key={cat.category}
-                href={`/assets?category=${encodeURIComponent(cat.category || '')}`}
-                className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
-                  selectedCategory === cat.category
-                    ? 'bg-secondary text-background'
-                    : 'border border-border text-foreground hover:bg-muted'
-                }`}
-              >
-                {cat.category || 'Sem categoria'}
-              </Link>
-            ))}
-          </div>
+          ))}
         </div>
 
         <div className="bg-card border border-border rounded-2xl overflow-hidden">
