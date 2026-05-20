@@ -41,8 +41,9 @@ function processWorksheet(worksheet: XLSX.WorkSheet): ParsedAsset[] {
 
     if (!isValidAssetCode(code)) continue;
 
+    const cleanCode = code.split('.').pop() || code;
     const asset: ParsedAsset = {
-      tagNumber: code,
+      tagNumber: cleanCode.padStart(4, '0'),
       name: description,
       category: currentCategory || 'Não categorizado',
       subcategory: currentSubcategory || undefined,
