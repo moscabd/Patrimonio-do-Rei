@@ -42,42 +42,84 @@ export default function AssetToolbar({ assets }: { assets: any[] }) {
     document.body.removeChild(link);
   };
 
-  // Importar CSV
+  // Importar Planilha (CSV ou Excel)
   const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setLoading(true);
-    const text = await file.text();
-    const lines = text.split("\n").filter(l => l.trim().length > 0);
-    
-    // Novo Padrão: Código;Nome;Categoria;Marca;Modelo;Série;Status;Valor;Descrição
-    const dataToImport = lines.slice(1).map(line => {
-      const cols = line.split(";");
-      return {
-        tagNumber: cols[0]?.trim(),
-        name: cols[1]?.trim(),
-        category: cols[2]?.trim(),
-        brand: cols[3]?.trim(),
-        model: cols[4]?.trim(),
-        serialNumber: cols[5]?.trim(),
-        status: cols[6]?.trim() || "ACTIVE",
-        currentValue: cols[7]?.trim(),
-        description: cols[8]?.trim()
-      };
-    });
+
+    const fileName = file.name.toLowerCase();
+    const isExcelFile = fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
 
     try {
-      await importAssets(dataToImport);
-      alert("Planilha importada com sucesso!");
+      if (isExcelFile) {
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const companyId = await getDefaultCompanyIdForImport();
+        
+        const response = await fetch('/api/import', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const result = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(result.error || 'Erro ao importar planilha');
+        }
+
+        alert(result.message);
+        window.location.reload();
+      } else {
+        const text = await file.text();
+        const lines = text.split("\n").filter(l => l.trim().length > 0);
+        
+        const header = lines[0].split(";").map(h => h.trim().toLowerCase());
+        const dataToImport = lines.slice(1).map(line => {
+          const cols = line.split(";");
+          const get = (names: string[]) => {
+            for (const name of names) {
+              const idx = header.findIndex(h => h === name.toLowerCase());
+              if (idx !== -1) return cols[idx]?.trim();
+            }
+            return undefined;
+          };
+          return {
+            tagNumber: get(["código", "código do bem", "código do bem (campo chave)"] ) || "",
+            name: get(["nome", "descrição do bem", "nome do item"] ) || "",
+            category: get(["categoria", "categoria principal"] ) || "",
+            brand: get(["marca", "fabricante"] ) || "",
+            model: get(["modelo", "modelo técnico"] ) || "",
+            serialNumber: get(["série", "número de série", "cód barras"] ) || "",
+            status: get(["status", "situação do bem"] ) || "ACTIVE",
+            currentValue: get(["valor", "valor de aquisição"] ) || "",
+            description: get(["descrição", "observações / detalhes", "local"] ) || ""
+          };
+        });
+
+        await importAssets(dataToImport);
+        alert("Planilha importada com sucesso!");
+      }
       setIsImportModalOpen(false);
     } catch (err) {
+      console.error('Erro ao importar:', err);
       alert("Erro ao importar. Verifique o formato.");
     } finally {
       setLoading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
+
+  async function getDefaultCompanyIdForImport() {
+    const response = await fetch('/api/companies/default');
+    if (response.ok) {
+      const data = await response.json();
+      return data.id;
+    }
+    return '';
+  }
 
   // Excluir Todos
   const handleDeleteAll = async () => {
@@ -200,14 +242,17 @@ export default function AssetToolbar({ assets }: { assets: any[] }) {
               </button>
             </div>
             <div className="p-6 space-y-6">
-              <div className="bg-muted/30 p-4 rounded-xl border border-border">
+<div className="bg-muted/30 p-4 rounded-xl border border-border">
                 <p className="text-sm font-bold text-foreground mb-2">Para garantir que funcione perfeitamente:</p>
                 <p className="text-xs text-muted-foreground leading-relaxed mb-4">
-                  Sua planilha deve ser um arquivo CSV (separado por ponto-e-vírgula) seguindo o nosso padrão exato de colunas (Código, Nome, Categoria, Marca, etc).
+                  Aceitamos arquivos Excel (.xlsx) ou CSV (separado por ponto-e-vírgula).<br/>
+                  Para Excel: Use a estrutura padrão com colunas: Código, Descrição, Código Barras, Valor, Data, Documento, Local.<br/>
+                  Para CSV: Código do Bem;Descrição do Bem;Código Barras;Valor do Bem;Data Aquisição;Documento Fiscal;Local do Bem
                 </p>
                 <button 
                   onClick={() => {
-                    const template = "Código;Nome;Categoria;Marca;Modelo;Série;Status;Valor;Descrição\nREI-001;Notebook Dell;TI;Dell;Latitude 5420;SN123456;ACTIVE;4500.00;Equipamento para desenvolvedores";
+                    const template = "Código do Bem;Descrição do Bem;Código Barras;Valor do Bem;Data Aquisição;Documento Fiscal;Local do Bem\n" +
+           "1.1.0001;AR CONDICIONADO ELETROLUX;123456;650.00;21/06/2022;NF 12345;DORMITÓRIO";
                     const blob = new Blob([template], { type: "text/csv;charset=utf-8;" });
                     const url = URL.createObjectURL(blob);
                     const link = document.createElement("a");
@@ -219,13 +264,13 @@ export default function AssetToolbar({ assets }: { assets: any[] }) {
                   }}
                   className="w-full py-2 bg-secondary/10 text-secondary border border-secondary/20 hover:bg-secondary/20 font-bold text-xs rounded-lg transition-colors"
                 >
-                  <Download className="w-3 h-3 inline-block mr-1" /> Baixar Planilha Padrão
+                  <Download className="w-3 h-3 inline-block mr-1" /> Baixar Planilha Padrão CSV
                 </button>
               </div>
               
               <input 
                 type="file" 
-                accept=".csv"
+                accept=".csv,.xlsx,.xls"
                 ref={fileInputRef}
                 onChange={handleImport}
                 className="hidden" 
