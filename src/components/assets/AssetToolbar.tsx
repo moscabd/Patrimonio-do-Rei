@@ -10,6 +10,7 @@ export default function AssetToolbar({ assets }: { assets: any[] }) {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [showPdfFeedback, setShowPdfFeedback] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -105,62 +106,7 @@ export default function AssetToolbar({ assets }: { assets: any[] }) {
     }
   };
 
-  const handleGeneratePdf = () => {
-    const newWindow = window.open('', '_blank');
-    if (newWindow) {
-      newWindow.document.write(`
-        <html>
-          <head>
-            <title>Gerando Relatório PDF...</title>
-            <style>
-              body {
-                font-family: 'Inter', -apple-system, sans-serif;
-                background-color: #0B0F19;
-                color: #F3F4F6;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                height: 100vh;
-                margin: 0;
-              }
-              .spinner {
-                border: 4px solid rgba(245, 158, 11, 0.1);
-                border-left-color: #F59E0B;
-                border-radius: 50%;
-                width: 50px;
-                height: 50px;
-                animation: spin 1s linear infinite;
-                margin-bottom: 24px;
-              }
-              h2 {
-                font-weight: 800;
-                margin: 0 0 8px 0;
-                letter-spacing: -0.025em;
-              }
-              p {
-                color: #9CA3AF;
-                font-size: 14px;
-                margin: 0;
-              }
-              @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-              }
-            </style>
-          </head>
-          <body>
-            <div class="spinner"></div>
-            <h2>Gerando Relatório Patrimonial</h2>
-            <p>Carregando dados do Supabase e estruturando tabelas do PDF...</p>
-          </body>
-        </html>
-      `);
-      newWindow.location.href = '/api/pdf/report';
-    } else {
-      alert("O navegador bloqueou a abertura do relatório. Por favor, permita pop-ups para este site para que possamos abrir o PDF!");
-    }
-  };
+
 
   return (
     <>
@@ -184,12 +130,18 @@ export default function AssetToolbar({ assets }: { assets: any[] }) {
         >
           <Download className="w-4 h-4" /> Exportar
         </button>
-        <button 
-          onClick={handleGeneratePdf}
+        <a 
+          href="/api/pdf/report"
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => {
+            setShowPdfFeedback(true);
+            setTimeout(() => setShowPdfFeedback(false), 6000);
+          }}
           className="flex items-center gap-2 px-4 py-2.5 border border-secondary/30 text-secondary rounded-xl text-sm font-semibold hover:bg-secondary/10 transition-all"
         >
           <FileDown className="w-4 h-4" /> Relatório PDF
-        </button>
+        </a>
         <button 
           onClick={() => setIsNewModalOpen(true)}
           className="flex items-center gap-2 px-5 py-2.5 bg-secondary text-background rounded-xl text-sm font-bold hover:bg-secondary/90 transition-all shadow-lg shadow-secondary/20"
@@ -197,6 +149,15 @@ export default function AssetToolbar({ assets }: { assets: any[] }) {
           <Plus className="w-4 h-4" /> Novo
         </button>
       </div>
+
+      {showPdfFeedback && (
+        <div className="fixed top-6 right-6 z-[99999] bg-card border border-emerald-500/30 text-emerald-400 px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="text-sm font-semibold">
+            Relatório de todos os patrimônios está sendo gerado e abrirá em outra aba!
+          </div>
+        </div>
+      )}
 
       {mounted && isNewModalOpen && createPortal(
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
