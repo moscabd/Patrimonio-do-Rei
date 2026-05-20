@@ -340,7 +340,7 @@ export async function generateReportPDF(assets: any[], committee: any, filters: 
     const cat = a.category || 'Sem Categoria';
     if (!categoryStats[cat]) categoryStats[cat] = { count: 0, value: 0 };
     categoryStats[cat].count++;
-    categoryStats[cat].value += Number(a.acquisitionValue) || 0;
+    categoryStats[cat].value += Number(a.currentValue) || 0;
   });
 
   const statusStats: Record<string, number> = {};
@@ -465,7 +465,7 @@ export async function generateReportPDF(assets: any[], committee: any, filters: 
       page.drawText(loc, { x: colX, y: yTable - 8, size: 6, font: font, color: DARK });
       colX += colWidths[3];
 
-      page.drawText(formatCurrency(asset.acquisitionValue), { x: colX, y: yTable - 8, size: 6, font: font, color: DARK });
+      page.drawText(formatCurrency(asset.currentValue), { x: colX, y: yTable - 8, size: 6, font: font, color: DARK });
       colX += colWidths[4];
 
       const status = sanitizePdfText(statusLabels[asset.status] || asset.status);
