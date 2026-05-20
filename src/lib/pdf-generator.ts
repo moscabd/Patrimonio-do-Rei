@@ -349,148 +349,148 @@ export async function generateReportPDF(assets: any[], committee: any, filters: 
     statusStats[status] = (statusStats[status] || 0) + 1;
   });
 
-  const filterText = [];
-  if (filters.category) filterText.push(`Categoria: ${filters.category}`);
-  if (filters.search) filterText.push(`Busca: ${filters.search}`);
+  const itemsPerPage = 35;
+  const tablePages = Math.ceil(totalAssets / itemsPerPage);
+  const totalPages = 1 + (tablePages > 0 ? tablePages : 0);
 
-  const itemsPerPage = 20;
-  const totalPages = Math.ceil(totalAssets / itemsPerPage);
+  // --- PÁGINA 1: DASHBOARD EXECUTIVO ---
+  const page1 = pdfDoc.addPage([595, 842]);
+  let y = await drawHeader(page1, font, boldFont, committee, 'RELATÓRIO GERAL DE BENS PATRIMONIAIS', '');
 
-  for (let pageIdx = 0; pageIdx < totalPages; pageIdx++) {
+  // Resumo Executivo
+  page1.drawText('RESUMO EXECUTIVO', { x: 40, y, size: 10, font: boldFont, color: GOLD });
+  y -= 15;
+
+  // Summary boxes
+  const boxWidth = 160;
+  const boxHeight = 40;
+  const gap = 15;
+
+  const summaries = [
+    { label: 'Total de Bens', value: totalAssets.toString() },
+    { label: 'Valor Aquisição', value: formatCurrency(totalAcquisition) },
+    { label: 'Valor Atual', value: formatCurrency(totalCurrent) },
+  ];
+
+  summaries.forEach((s, i) => {
+    const x = 40 + i * (boxWidth + gap);
+    page1.drawRectangle({ x, y: y - boxHeight, width: boxWidth, height: boxHeight, color: LIGHT_BG, borderColor: GOLD, borderWidth: 0.5 });
+    page1.drawText(s.label.toUpperCase(), { x: x + 8, y: y - 12, size: 6, font: font, color: MUTED });
+    page1.drawText(s.value, { x: x + 8, y: y - 28, size: 10, font: boldFont, color: GOLD });
+  });
+  y -= boxHeight + 20;
+
+  // By Category
+  page1.drawText('DISTRIBUIÇÃO POR CATEGORIA', { x: 40, y, size: 9, font: boldFont, color: GOLD });
+  y -= 12;
+
+  Object.entries(categoryStats).forEach(([cat, stats]) => {
+    const safeCat = sanitizePdfText(cat);
+    page1.drawText(safeCat, { x: 40, y, size: 7, font: font, color: DARK });
+    page1.drawText(`${stats.count} itens - ${formatCurrency(stats.value)}`, { x: 350, y, size: 7, font: font, color: MUTED });
+    y -= 10;
+  });
+  y -= 10;
+
+  // By Status
+  page1.drawText('DISTRIBUIÇÃO POR STATUS', { x: 40, y, size: 9, font: boldFont, color: GOLD });
+  y -= 12;
+
+  let statusX = 40;
+  Object.entries(statusStats).forEach(([status, count]) => {
+    const safeStatusLabel = statusLabels[status] || sanitizePdfText(status);
+    page1.drawText(`${safeStatusLabel}: ${count}`, { x: statusX, y, size: 7, font: font, color: DARK });
+    statusX += 80;
+  });
+  y -= 30;
+
+  // Draw Committee signatures block at the bottom of Page 1
+  await drawCommittee(page1, font, boldFont, committee, y);
+
+  drawFooter(page1, font, 1, totalPages);
+
+  // --- PÁGINAS 2+: LISTAGEM DE BENS (TABELA) ---
+  for (let tablePageIdx = 0; tablePageIdx < tablePages; tablePageIdx++) {
     const page = pdfDoc.addPage([595, 842]);
-    const start = pageIdx * itemsPerPage;
+    const start = tablePageIdx * itemsPerPage;
     const end = start + itemsPerPage;
     const pageAssets = assets.slice(start, end);
+    const currentPageNum = 2 + tablePageIdx;
 
-    let y = await drawHeader(page, font, boldFont, committee, 'RELATÓRIO GERAL DE BENS PATRIMONIAIS', '');
-
-    if (pageIdx === 0) {
-      // Summary
-      page.drawText('RESUMO EXECUTIVO', { x: 40, y, size: 10, font: boldFont, color: GOLD });
-      y -= 15;
-
-      // Summary boxes
-      const boxWidth = 160;
-      const boxHeight = 40;
-      const gap = 15;
-
-      const summaries = [
-        { label: 'Total de Bens', value: totalAssets.toString() },
-        { label: 'Valor Aquisição', value: formatCurrency(totalAcquisition) },
-        { label: 'Valor Atual', value: formatCurrency(totalCurrent) },
-      ];
-
-      summaries.forEach((s, i) => {
-        const x = 40 + i * (boxWidth + gap);
-        page.drawRectangle({ x, y: y - boxHeight, width: boxWidth, height: boxHeight, color: LIGHT_BG, borderColor: GOLD, borderWidth: 0.5 });
-        page.drawText(s.label.toUpperCase(), { x: x + 8, y: y - 12, size: 6, font: font, color: MUTED });
-        page.drawText(s.value, { x: x + 8, y: y - 28, size: 10, font: boldFont, color: GOLD });
-      });
-      y -= boxHeight + 20;
-
-      // By Category
-      page.drawText('POR CATEGORIA', { x: 40, y, size: 9, font: boldFont, color: GOLD });
-      y -= 12;
-
-      Object.entries(categoryStats).forEach(([cat, stats]) => {
-        const safeCat = sanitizePdfText(cat);
-        page.drawText(safeCat, { x: 40, y, size: 7, font: font, color: DARK });
-        page.drawText(`${stats.count} itens - ${formatCurrency(stats.value)}`, { x: 350, y, size: 7, font: font, color: MUTED });
-        y -= 10;
-      });
-      y -= 10;
-
-      // By Status
-      page.drawText('POR STATUS', { x: 40, y, size: 9, font: boldFont, color: GOLD });
-      y -= 12;
-
-      let statusX = 40;
-      Object.entries(statusStats).forEach(([status, count]) => {
-      const safeStatusLabel = statusLabels[status] || sanitizePdfText(status);
-        page.drawText(`${safeStatusLabel}: ${count}`, { x: statusX, y, size: 7, font: font, color: DARK });
-        statusX += 80;
-      });
-      y -= 25;
-    }
+    let yTable = await drawHeader(page, font, boldFont, committee, 'RELATÓRIO GERAL - LISTAGEM DE BENS', '');
 
     // Table Header
     page.drawRectangle({
       x: 40,
-      y: y - 15,
+      y: yTable - 15,
       width: page.getWidth() - 80,
       height: 15,
       color: GOLD,
     });
 
     const headers = ['Código', 'Nome', 'Categoria', 'Local', 'Valor', 'Status'];
-    const colWidths = [70, 120, 80, 80, 70, 60];
+    const colWidths = [70, 140, 85, 85, 75, 60];
     let colX = 45;
 
     headers.forEach((h, i) => {
-      page.drawText(h, { x: colX, y: y - 10, size: 7, font: boldFont, color: WHITE });
+      page.drawText(h, { x: colX, y: yTable - 10, size: 7, font: boldFont, color: WHITE });
       colX += colWidths[i];
     });
-    y -= 20;
+    yTable -= 20;
 
     // Table Rows
     pageAssets.forEach((asset, idx) => {
-      if (y < 100) return;
-
       const bgColor = idx % 2 === 1 ? rgb(0.98, 0.98, 0.98) : WHITE;
       page.drawRectangle({
         x: 40,
-        y: y - 12,
+        y: yTable - 12,
         width: page.getWidth() - 80,
         height: 12,
         color: bgColor,
       });
 
       colX = 45;
-      page.drawText(sanitizePdfText(asset.tagNumber), { x: colX, y: y - 8, size: 6, font: boldFont, color: GOLD });
+      page.drawText(sanitizePdfText(asset.tagNumber), { x: colX, y: yTable - 8, size: 6, font: boldFont, color: GOLD });
       colX += colWidths[0];
 
-      const name = sanitizePdfText(asset.name.length > 25 ? asset.name.substring(0, 25) + '...' : asset.name);
-      page.drawText(name, { x: colX, y: y - 8, size: 6, font: font, color: DARK });
+      const name = sanitizePdfText(asset.name.length > 30 ? asset.name.substring(0, 30) + '...' : asset.name);
+      page.drawText(name, { x: colX, y: yTable - 8, size: 6, font: font, color: DARK });
       colX += colWidths[1];
 
       const cat = sanitizePdfText(((asset.category || '-').length > 15 ? (asset.category || '-').substring(0, 15) : (asset.category || '-')));
-      page.drawText(cat, { x: colX, y: y - 8, size: 6, font: font, color: DARK });
+      page.drawText(cat, { x: colX, y: yTable - 8, size: 6, font: font, color: DARK });
       colX += colWidths[2];
 
       const loc = sanitizePdfText(((asset.physicalLocation || '-').length > 15 ? (asset.physicalLocation || '-').substring(0, 15) : (asset.physicalLocation || '-')));
-      page.drawText(loc, { x: colX, y: y - 8, size: 6, font: font, color: DARK });
+      page.drawText(loc, { x: colX, y: yTable - 8, size: 6, font: font, color: DARK });
       colX += colWidths[3];
 
-      page.drawText(formatCurrency(asset.acquisitionValue), { x: colX, y: y - 8, size: 6, font: font, color: DARK });
+      page.drawText(formatCurrency(asset.acquisitionValue), { x: colX, y: yTable - 8, size: 6, font: font, color: DARK });
       colX += colWidths[4];
 
       const status = sanitizePdfText(statusLabels[asset.status] || asset.status);
-      page.drawText(status, { x: colX, y: y - 8, size: 6, font: font, color: DARK });
+      page.drawText(status, { x: colX, y: yTable - 8, size: 6, font: font, color: DARK });
 
-      y -= 14;
+      yTable -= 14;
     });
 
     // Total box on last page
-    if (pageIdx === totalPages - 1) {
-      y -= 10;
+    if (tablePageIdx === tablePages - 1) {
+      yTable -= 10;
       page.drawRectangle({
         x: 40,
-        y: y - 30,
+        y: yTable - 30,
         width: page.getWidth() - 80,
         height: 30,
         color: GOLD,
       });
-      page.drawText('VALOR TOTAL DE AQUISIÇÃO', { x: 55, y: y - 10, size: 8, font: boldFont, color: WHITE });
-      page.drawText(formatCurrency(totalAcquisition), { x: 400, y: y - 10, size: 10, font: boldFont, color: WHITE });
-      page.drawText('VALOR TOTAL ATUAL', { x: 55, y: y - 22, size: 8, font: boldFont, color: WHITE });
-      page.drawText(formatCurrency(totalCurrent), { x: 400, y: y - 22, size: 10, font: boldFont, color: WHITE });
-      y -= 50;
-
-      // Committee
-      await drawCommittee(page, font, boldFont, committee, y);
+      page.drawText('VALOR TOTAL DE AQUISIÇÃO', { x: 55, y: yTable - 10, size: 8, font: boldFont, color: WHITE });
+      page.drawText(formatCurrency(totalAcquisition), { x: 400, y: yTable - 10, size: 10, font: boldFont, color: WHITE });
+      page.drawText('VALOR TOTAL ATUAL', { x: 55, y: yTable - 22, size: 8, font: boldFont, color: WHITE });
+      page.drawText(formatCurrency(totalCurrent), { x: 400, y: yTable - 22, size: 10, font: boldFont, color: WHITE });
     }
 
-    drawFooter(page, font, pageIdx + 1, totalPages);
+    drawFooter(page, font, currentPageNum, totalPages);
   }
 
   return pdfDoc.save();
