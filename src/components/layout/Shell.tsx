@@ -13,10 +13,12 @@ import {
   Crown,
   Menu,
   X,
-  FileSpreadsheet
+  FileSpreadsheet,
+  LogOut
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/" },
@@ -27,9 +29,20 @@ const navItems = [
   { icon: FileSpreadsheet, label: "Converter Planilha", href: "/converter" },
 ];
 
-export default function Shell({ children }: { children: React.ReactNode }) {
+export default function Shell({ children, user }: { children: React.ReactNode, user?: any }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      router.push('/login');
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
+  };
 
   return (
     <div className="flex h-screen bg-background text-foreground font-sans">
@@ -130,22 +143,40 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             </div>
           </div>
 
-          {/* Right */}
-          <div className="flex items-center gap-3">
-            <button className="relative p-2 text-muted-foreground hover:text-secondary transition-colors rounded-lg hover:bg-muted">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-emerald-400 rounded-full shadow-[0_0_6px_rgba(52,211,153,0.6)]" />
-            </button>
-            <div className="hidden sm:flex items-center gap-3 border-l border-border pl-3 ml-1">
-              <div className="text-right">
-                <p className="text-sm font-bold text-foreground leading-tight">Admin</p>
-                <p className="text-[10px] font-semibold text-secondary uppercase tracking-wider">Super Admin</p>
-              </div>
-              <div className="w-9 h-9 rounded-lg bg-secondary/15 border border-secondary/20 flex items-center justify-center">
-                <UserCircle className="w-5 h-5 text-secondary" />
-              </div>
-            </div>
-          </div>
+           {/* Right */}
+           <div className="flex items-center gap-3">
+             <button className="relative p-2 text-muted-foreground hover:text-secondary transition-colors rounded-lg hover:bg-muted">
+               <Bell className="w-5 h-5" />
+               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-emerald-400 rounded-full shadow-[0_0_6px_rgba(52,211,153,0.6)]" />
+             </button>
+             <div className="hidden sm:flex items-center gap-3 border-l border-border pl-3 ml-1 relative">
+               <button
+                 onClick={() => setShowUserMenu(!showUserMenu)}
+                 className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+               >
+                 <div className="text-right">
+                   <p className="text-sm font-bold text-foreground leading-tight">{user?.name || 'Admin'}</p>
+                   <p className="text-[10px] font-semibold text-secondary uppercase tracking-wider">{user?.role || 'Super Admin'}</p>
+                 </div>
+                 <div className="w-9 h-9 rounded-lg bg-secondary/15 border border-secondary/20 flex items-center justify-center">
+                   <UserCircle className="w-5 h-5 text-secondary" />
+                 </div>
+               </button>
+               
+               {/* User Menu */}
+               {showUserMenu && (
+                 <div className="absolute top-full right-0 mt-2 bg-card border border-border rounded-lg shadow-lg z-50 w-48">
+                   <button
+                     onClick={handleLogout}
+                     className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-foreground hover:bg-muted transition-colors border-t border-border first:border-t-0"
+                   >
+                     <LogOut className="w-4 h-4" />
+                     Sair
+                   </button>
+                 </div>
+               )}
+             </div>
+           </div>
         </header>
 
         {/* Viewport */}

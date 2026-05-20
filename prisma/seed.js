@@ -1,61 +1,35 @@
 const { PrismaClient } = require('@prisma/client');
+const bcryptjs = require('bcryptjs');
+
 const prisma = new PrismaClient();
 
-async function main() {
-  // Criar empresa matriz
-  const company = await prisma.company.upsert({
-    where: { document: '00000000000100' },
-    update: {},
-    create: {
-      name: 'Matriz Imperial',
-      document: '00000000000100',
-    },
-  });
+async function seed() {
+  // Create default admin user
+  const hashedPassword = await bcryptjs.hash('admin123', 10);
+  
+  try {
+    const user = await prisma.user.upsert({
+      where: { email: 'admin@rei.com' },
+      update: {
+        password: hashedPassword,
+        name: 'Administrador',
+        role: 'SUPER_ADMIN'
+      },
+      create: {
+        email: 'admin@rei.com',
+        name: 'Administrador',
+        password: hashedPassword,
+        role: 'SUPER_ADMIN'
+      }
+    });
 
-  console.log('Company created:', company.id);
-
-  // Criar alguns patrimônios Reais
-  await prisma.asset.create({
-    data: {
-      tagNumber: 'REI-001',
-      name: 'Servidor Dell PowerEdge R750',
-      category: 'TI / Infraestrutura',
-      status: 'IN_USE',
-      currentValue: 45000.00,
-      companyId: company.id,
-    }
-  });
-
-  await prisma.asset.create({
-    data: {
-      tagNumber: 'REI-002',
-      name: 'Herman Miller Aeron Chair',
-      category: 'Mobiliário',
-      status: 'ACTIVE',
-      currentValue: 12500.00,
-      companyId: company.id,
-    }
-  });
-
-  await prisma.asset.create({
-    data: {
-      tagNumber: 'REI-003',
-      name: 'MacBook Pro M3 Max',
-      category: 'TI / Dispositivos',
-      status: 'MAINTENANCE',
-      currentValue: 32000.00,
-      companyId: company.id,
-    }
-  });
-
-  console.log('Assets seeded successfully!');
+    console.log('✅ Default admin user seeded:', user.email);
+  } catch (error) {
+    console.error('Error seeding user:', error);
+    process.exit(1);
+  } finally {
+    await prisma.$disconnect();
+  }
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+seed();

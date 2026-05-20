@@ -7,6 +7,7 @@ import {
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 import AssetToolbar from "@/components/assets/AssetToolbar";
+import { requireAuth } from "@/lib/auth";
 
 const statusStyles: Record<string, string> = {
   "ACTIVE": "bg-emerald-500/15 text-emerald-400 border-emerald-500/20",
@@ -39,6 +40,7 @@ function getPageNumbers(total: number): number[] {
 }
 
 export default async function AssetsPage({ searchParams }: { searchParams: { page?: string; category?: string; search?: string } }) {
+  const user = await requireAuth();
   const currentPage = Number(searchParams.page) || 1;
   const selectedCategory = searchParams.category || '';
   const searchTerm = searchParams.search || '';
@@ -76,7 +78,7 @@ export default async function AssetsPage({ searchParams }: { searchParams: { pag
   });
 
   return (
-    <Shell>
+    <Shell user={user}>
       <div className="space-y-6">
         <div className="animate-in flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
           <div>
