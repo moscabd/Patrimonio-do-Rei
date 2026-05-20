@@ -83,16 +83,20 @@ export async function importAssets(assetsData: any[]) {
     tagNumber: item.tagNumber || `REI-IMPORT-${Math.floor(Math.random()*10000)}`,
     name: item.name || "Item Importado",
     category: item.category || "Geral",
+    subcategory: item.subcategory || null,
     brand: item.brand || null,
     model: item.model || null,
     serialNumber: item.serialNumber || null,
     description: item.description || null,
+    barcode: item.barcode || null,
     status: (item.status as any) || "ACTIVE",
-    currentValue: item.currentValue ? parseFloat(item.currentValue.replace(',', '.')) : null,
+    currentValue: item.currentValue ? parseFloat(String(item.currentValue).replace(',', '.')) : null,
+    acquisitionValue: item.acquisitionValue ? parseFloat(String(item.acquisitionValue).replace(',', '.')) : null,
+    invoiceNumber: item.invoiceNumber || null,
+    physicalLocation: item.physicalLocation || null,
     companyId
   }));
 
-  // Using createMany to skip duplicates if any fail (not ideal for robust systems, but good for MVP)
   for (const data of dataToInsert) {
     try {
       await prisma.asset.upsert({

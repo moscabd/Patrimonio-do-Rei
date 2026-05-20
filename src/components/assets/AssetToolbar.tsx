@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Plus, Download, Upload, X, Loader2, Trash2 } from "lucide-react";
 import { createAsset, importAssets, deleteAllAssets } from "@/app/actions/asset";
+import * as XLSX from 'xlsx';
 
 export default function AssetToolbar({ assets }: { assets: any[] }) {
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
@@ -49,32 +50,69 @@ export default function AssetToolbar({ assets }: { assets: any[] }) {
 
     setLoading(true);
 
-    const fileName = file.name.toLowerCase();
-    const isExcelFile = fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
-
     try {
+      const fileName = file.name.toLowerCase();
+      const isExcelFile = fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
+
+      let dataToImport: any[] = [];
+
       if (isExcelFile) {
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        const companyId = await getDefaultCompanyIdForImport();
-        if (companyId) {
-          formData.append('companyId', companyId);
-        }
-        
-        const response = await fetch('/api/import', {
-          method: 'POST',
-          body: formData,
-        });
+        // Parse Excel no client-side
+        const arrayBuffer = await file.arrayBuffer();
+        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const data = XLSX.utils.sheet_to_json(worksheet) as Record<string, unknown>[];
 
-        const result = await response.json();
-        
-        if (!response.ok) {
-          throw new Error(result.error || 'Erro ao importar planilha');
-        }
+        let currentCategory = '';
+        let currentSubcategory = '';
 
-        alert(result.message || 'Importação concluída!');
-        window.location.reload();
+        for (const row of data) {
+          const code = String(row['__EMPTY_1'] || '').trim();
+          const description = String(row['__EMPTY_2'] || '').trim();
+          const barcode = String(row['__EMPTY_3'] || '').trim();
+          const value = row['__EMPTY_4'];
+          const dateStr = row['__EMPTY_5'];
+          const invoice = String(row['__EMPTY_6'] || '').trim();
+          const location = String(row['__EMPTY_7'] || '').trim();
+
+          // Detectar categorias
+          if (/^\d+\.$/.test(code) || /^\d+\.\d+\.$/.test(code)) {
+            const parts = code.replace(/\.$/, '').split('.');
+            if (parts.length === 1) {
+              currentCategory = description;
+              currentSubcategory = '';
+            } else if (parts.length === 2) {
+              currentSubcategory = description;
+            }
+            continue;
+          }
+
+          // Pular linhas inválidas
+          if (!code || code.includes('TOTAL')) continue;
+          const parts = code.split('.');
+          if (parts.length !== 2 || !/^\d{4,}$/.test(parts[1])) continue;
+
+          const cleanCode = parts[1];
+          
+          let acquisitionValue: number | undefined;
+          if (value) {
+            const numValue = typeof value === 'number' ? value : parseFloat(String(value).replace(/[^0-9.,]/g, '').replace(',', '.'));
+            if (!isNaN(numValue)) acquisitionValue = numValue;
+          }
+
+          dataToImport.push({
+            tagNumber: cleanCode,
+            name: description || 'Sem nome',
+            category: currentCategory || 'Geral',
+            subcategory: currentSubcategory || undefined,
+            barcode: barcode || undefined,
+            currentValue: acquisitionValue,
+            acquisitionValue: acquisitionValue,
+            invoiceNumber: (invoice && invoice !== ' ') ? invoice : undefined,
+            physicalLocation: (location && location !== ' ') ? location : undefined,
+          });
+        }
       } else {
         // CSV path
         const text = await file.text();
@@ -85,7 +123,7 @@ export default function AssetToolbar({ assets }: { assets: any[] }) {
         }
         
         const header = lines[0].split(";").map(h => h.trim().toLowerCase());
-        const dataToImport = lines.slice(1).map(line => {
+        dataToImport = lines.slice(1).map(line => {
           const cols = line.split(";");
           const get = (names: string[]) => {
             for (const name of names) {
@@ -106,15 +144,16 @@ export default function AssetToolbar({ assets }: { assets: any[] }) {
             description: get(["descrição", "observações / detalhes", "local"] ) || ""
           };
         }).filter(item => item.tagNumber && item.name);
-
-        if (dataToImport.length === 0) {
-          throw new Error('Nenhum dado válido encontrado no CSV');
-        }
-
-        await importAssets(dataToImport);
-        alert(`Importados ${dataToImport.length} itens com sucesso!`);
       }
+
+      if (dataToImport.length === 0) {
+        throw new Error('Nenhum dado válido encontrado no arquivo');
+      }
+
+      await importAssets(dataToImport);
+      alert(`Importados ${dataToImport.length} itens com sucesso!`);
       setIsImportModalOpen(false);
+      window.location.reload();
     } catch (err) {
       console.error('Erro ao importar:', err);
       alert(err instanceof Error ? err.message : "Erro ao importar. Verifique o formato.");
