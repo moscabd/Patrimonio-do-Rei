@@ -50,13 +50,6 @@ export default async function Dashboard() {
               </p>
             </div>
           </div>
-          <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3 flex items-center gap-3">
-            <ShieldCheck className="w-5 h-5 text-emerald-400" />
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Integridade</p>
-              <p className="text-sm font-black text-emerald-300">100% Protegido</p>
-            </div>
-          </div>
         </div>
 
         {/* Stats Grid */}

@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Upload, Download, Loader2, FileSpreadsheet } from "lucide-react";
+import { Upload, Download, Loader2, FileSpreadsheet, ArrowLeft } from "lucide-react";
 import * as XLSX from "xlsx";
+import Link from "next/link";
 
 export default function ConverterPage() {
   const [loading, setLoading] = useState(false);
@@ -141,11 +142,16 @@ export default function ConverterPage() {
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-4xl mx-auto space-y-8">
-        <div>
-          <h1 className="text-3xl font-black text-foreground">Converter Planilha</h1>
-          <p className="text-muted-foreground mt-2">
-            Converta qualquer Excel para o formato padrão do sistema
-          </p>
+        <div className="flex items-center gap-4">
+          <Link href="/" className="p-2 border border-border rounded-xl hover:bg-muted transition-colors">
+            <ArrowLeft className="w-5 h-5 text-foreground" />
+          </Link>
+          <div>
+            <h1 className="text-3xl font-black text-foreground">Converter Planilha</h1>
+            <p className="text-muted-foreground mt-2">
+              Converta qualquer Excel para o formato padrão do sistema
+            </p>
+          </div>
         </div>
 
         <div 
