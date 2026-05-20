@@ -30,11 +30,27 @@ export default function ConverterPage() {
         return;
       }
 
-      const headers = data[0].map((h: any) => String(h || "").trim().toLowerCase());
+      let headerIndex = -1;
+      for (let i = 0; i < data.length; i++) {
+        const row = data[i];
+        if (!row || row.length === 0) continue;
+        const text = row.map(c => String(c || "").trim().toLowerCase()).join(" ");
+        if (text.includes("código") || text.includes("codigo") || text.includes("descrição") || text.includes("descricao")) {
+          headerIndex = i;
+          break;
+        }
+      }
+
+      if (headerIndex === -1) {
+        alert("Não foi possível encontrar a linha de cabeçalho na planilha.");
+        return;
+      }
+
+      const headers = data[headerIndex].map((h: any) => String(h || "").trim().toLowerCase());
       
       const mapeamento = detectarColunas(headers);
       
-      const rows = data.slice(1).filter((row: any[]) => row.some(cell => cell !== undefined && cell !== ""));
+      const rows = data.slice(headerIndex + 1).filter((row: any[]) => row.some(cell => cell !== undefined && cell !== ""));
       
       const dadosMapeados = rows.map((row: any[]) => {
         const get = (idx: number) => {
@@ -49,7 +65,12 @@ export default function ConverterPage() {
           valor: get(mapeamento.valor),
           local: get(mapeamento.local),
         };
-      }).filter(item => item.codigo && item.nome);
+      }).filter(item => {
+        if (!item.codigo || !item.nome) return false;
+        if (/^\d+\.$/.test(item.codigo.trim())) return false;
+        if (/^\d+\.\d+\.$/.test(item.codigo.trim())) return false;
+        return true;
+      });
 
       setPreview(dadosMapeados.slice(0, 10));
 
@@ -81,7 +102,7 @@ export default function ConverterPage() {
 
     const sinonimos = {
       codigo: ["código", "codigo", "cod", "patrimônio", "patrimonio", "número", "numero", "id", "código bem", "codigo bem", "cód"],
-      nome: ["nome", "descrição", "descricao", "item", "bem", "descrição do bem", "nome do item", "produto"],
+      nome: ["nome", "descrição", "descricao", "item", "bem", "descrição do bem", "descricao do bem", "nome do item", "produto"],
       categoria: ["categoria", "tipo", "classificação", "classificacao", "grupo", "subcategoria"],
       valor: ["valor", "preço", "preco", "custo", "aquisição", "aquisicao", "vlr", "value", "valor do bem"],
       local: ["local", "localização", "localizacao", "setor", "ambiente", "sala", "departamento", "local do bem"],

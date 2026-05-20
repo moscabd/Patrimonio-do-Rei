@@ -74,11 +74,11 @@ export default function AssetToolbar({ assets }: { assets: any[] }) {
           return undefined;
         };
         return {
-          tagNumber: get(["código", "codigo", "cod"]) || "",
-          name: get(["nome", "descrição", "descricao", "item"]) || "",
+          tagNumber: get(["código", "codigo", "cod", "código bem", "codigo bem"]) || "",
+          name: get(["nome", "descrição", "descricao", "item", "descrição do bem", "descricao do bem", "nome do item"]) || "",
           category: get(["categoria"]) || "Geral",
-          currentValue: get(["valor", "value"]) || "",
-          physicalLocation: get(["local", "location"]) || "",
+          currentValue: get(["valor", "value", "valor do bem"]) || "",
+          physicalLocation: get(["local", "location", "local do bem"]) || "",
         };
       }).filter(item => item.tagNumber && item.name);
 
@@ -223,7 +223,7 @@ export default function AssetToolbar({ assets }: { assets: any[] }) {
               
               <button 
                 onClick={() => {
-                  const template = "Código;Nome;Categoria;Valor;Local\n0001;Ar Condicionado;Eletrônicos;650.00;Dormitório\n0002;Geladeira;Eletrodomésticos;700.00;Cozinha";
+                  const template = "Código Bem;Descrição do Bem;Cód Barras;Valor do Bem;Data Aquisição;Documento Fiscal;Local do Bem\n1.1.0001;AR CONDICIONADO;123456;650.00;01/01/2024;NF 001;DORMITÓRIO\n1.1.0002;GELADEIRA;789012;700.00;;;COZINHA";
                   const blob = new Blob(["\ufeff" + template], { type: "text/csv;charset=utf-8;" });
                   const url = URL.createObjectURL(blob);
                   const link = document.createElement("a");

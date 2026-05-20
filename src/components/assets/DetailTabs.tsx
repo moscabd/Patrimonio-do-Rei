@@ -176,13 +176,6 @@ export default function DetailTabs({ asset }: { asset: any }) {
             <div className="absolute bottom-0 right-0 w-24 h-24 bg-secondary/10 rounded-full -mb-12 -mr-12 blur-2xl" />
           </div>
 
-          <div className="animate-in animate-in-delay-3 bg-card border border-border rounded-2xl p-6 text-center">
-            <div className="w-14 h-14 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary mx-auto mb-4">
-              <ShieldCheck className="w-7 h-7" />
-            </div>
-            <h4 className="text-sm font-bold text-foreground">Bem Protegido</h4>
-            <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">Sob vigilância e auditoria do Banco de Dados Central.</p>
-          </div>
         </div>
       </div>
 

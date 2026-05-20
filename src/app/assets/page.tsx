@@ -1,9 +1,8 @@
 import Shell from "@/components/layout/Shell";
 import {
   ChevronRight,
-  ShieldCheck,
+  ChevronLeft,
   MapPin,
-  Calendar,
 } from "lucide-react";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
@@ -43,9 +42,13 @@ function formatValue(value: any): string {
   return `R$ ${Number(value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
 }
 
+function getPageNumbers(total: number): number[] {
+  return Array.from({ length: total }, (_, i) => i + 1);
+}
+
 export default async function AssetsPage({ searchParams }: { searchParams: { page?: string } }) {
   const currentPage = Number(searchParams.page) || 1;
-  const pageSize = 20;
+  const pageSize = 100;
 
   const totalAssets = await prisma.asset.count();
   const totalPages = Math.ceil(totalAssets / pageSize) || 1;
@@ -151,22 +154,40 @@ export default async function AssetsPage({ searchParams }: { searchParams: { pag
           </div>
 
           <div className="px-6 py-4 bg-muted/20 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Página {currentPage} de {totalPages}
-            </span>
-            <div className="flex gap-2">
+            <span>Página {currentPage} de {totalPages}</span>
+            <div className="flex items-center gap-1">
               {currentPage > 1 ? (
-                <Link href={`/assets?page=${currentPage - 1}`} className="px-3 py-1.5 border border-border rounded-lg hover:bg-muted transition-colors text-foreground">Anterior</Link>
+                <Link href={`/assets?page=${currentPage - 1}`} className="p-1.5 border border-border rounded-lg hover:bg-muted transition-colors text-foreground">
+                  <ChevronLeft className="w-4 h-4" />
+                </Link>
               ) : (
-                <button disabled className="px-3 py-1.5 border border-border/50 rounded-lg text-muted-foreground opacity-50 cursor-not-allowed">Anterior</button>
+                <button disabled className="p-1.5 border border-border/50 rounded-lg text-muted-foreground opacity-50 cursor-not-allowed">
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
               )}
-              
-              <button className="px-3 py-1.5 bg-secondary text-background rounded-lg font-bold">{currentPage}</button>
-              
+
+              {getPageNumbers(totalPages).map(page => (
+                <Link
+                  key={page}
+                  href={`/assets?page=${page}`}
+                  className={`min-w-[32px] px-2 py-1.5 text-center rounded-lg font-bold transition-colors ${
+                    page === currentPage
+                      ? 'bg-secondary text-background'
+                      : 'border border-border hover:bg-muted text-foreground'
+                  }`}
+                >
+                  {page}
+                </Link>
+              ))}
+
               {currentPage < totalPages ? (
-                <Link href={`/assets?page=${currentPage + 1}`} className="px-3 py-1.5 border border-border rounded-lg hover:bg-muted transition-colors text-foreground">Próximo</Link>
+                <Link href={`/assets?page=${currentPage + 1}`} className="p-1.5 border border-border rounded-lg hover:bg-muted transition-colors text-foreground">
+                  <ChevronRight className="w-4 h-4" />
+                </Link>
               ) : (
-                <button disabled className="px-3 py-1.5 border border-border/50 rounded-lg text-muted-foreground opacity-50 cursor-not-allowed">Próximo</button>
+                <button disabled className="p-1.5 border border-border/50 rounded-lg text-muted-foreground opacity-50 cursor-not-allowed">
+                  <ChevronRight className="w-4 h-4" />
+                </button>
               )}
             </div>
           </div>
