@@ -18,12 +18,17 @@ export async function POST(request: NextRequest) {
     if (!companyId) {
       const company = await prisma.company.findFirst();
       if (!company) {
-        return NextResponse.json(
-          { error: 'Nenhuma empresa cadastrada.' },
-          { status: 400 }
-        );
+        // Cria empresa padrão automaticamente
+        const newCompany = await prisma.company.create({
+          data: {
+            name: 'Patrimônio do Rei',
+            document: '12.345.678/0001-99',
+          }
+        });
+        companyId = newCompany.id;
+      } else {
+        companyId = company.id;
       }
-      companyId = company.id;
     }
 
     const arrayBuffer = await file.arrayBuffer();
@@ -79,10 +84,8 @@ export async function POST(request: NextRequest) {
 
       if (!code || code.includes('TOTAL')) continue;
 
-      const parts = code.split('.');
-      if (parts.length !== 2 || !/^\d{4,}$/.test(parts[1])) continue;
-
-      const cleanCode = parts[1];
+      // Mantém o código completo (ex: 1.1.0001)
+      const tagNumber = code;
       
       let acquisitionValue: number | undefined;
       if (value) {
@@ -104,7 +107,7 @@ export async function POST(request: NextRequest) {
       }
 
       assets.push({
-        tagNumber: cleanCode,
+        tagNumber: tagNumber,
         name: description || 'Sem nome',
         description: undefined,
         barcode: barcode || undefined,
