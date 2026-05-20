@@ -24,14 +24,6 @@ const statusLabels: Record<string, string> = {
   "MISSING": "Extraviado",
 };
 
-function formatTagNumber(tag: string): string {
-  const parts = tag.split('.');
-  if (parts.length >= 2) {
-    return parts[parts.length - 1];
-  }
-  return tag;
-}
-
 function formatDate(date: Date | null): string {
   if (!date) return '-';
   return new Date(date).toLocaleDateString('pt-BR');
@@ -46,13 +38,25 @@ function getPageNumbers(total: number): number[] {
   return Array.from({ length: total }, (_, i) => i + 1);
 }
 
-export default async function AssetsPage({ searchParams }: { searchParams: { page?: string; category?: string } }) {
+export default async function AssetsPage({ searchParams }: { searchParams: { page?: string; category?: string; search?: string } }) {
   const currentPage = Number(searchParams.page) || 1;
   const selectedCategory = searchParams.category || '';
+  const searchTerm = searchParams.search || '';
   const pageSize = 50;
 
   // Build filter
-  const whereFilter: any = selectedCategory ? { category: selectedCategory } : {};
+  const whereFilter: any = {};
+  
+  if (selectedCategory) {
+    whereFilter.category = selectedCategory;
+  }
+  
+  if (searchTerm) {
+    whereFilter.OR = [
+      { name: { contains: searchTerm, mode: 'insensitive' } },
+      { tagNumber: { contains: searchTerm, mode: 'insensitive' } }
+    ];
+  }
 
   const totalAssets = await prisma.asset.count({ where: whereFilter });
   const totalPages = Math.ceil(totalAssets / pageSize) || 1;
@@ -80,6 +84,28 @@ export default async function AssetsPage({ searchParams }: { searchParams: { pag
             <p className="text-muted-foreground text-sm mt-1">{totalAssets} itens cadastrados</p>
           </div>
           <AssetToolbar assets={assets} />
+        </div>
+
+        {/* Search Bar */}
+        <div className="flex gap-2 max-w-md">
+          <form className="flex-1 flex gap-2" method="GET" action="/assets">
+            <input
+              type="text"
+              name="search"
+              placeholder="Buscar por nome ou código..."
+              defaultValue={searchTerm}
+              className="flex-1 px-3 py-2 text-sm border border-border rounded-lg bg-card text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/50"
+            />
+            {searchTerm && (
+              <Link
+                href="/assets"
+                className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                title="Limpar busca"
+              >
+                ✕
+              </Link>
+            )}
+          </form>
         </div>
 
         {/* Category Filter - Subtle */}
@@ -128,7 +154,7 @@ export default async function AssetsPage({ searchParams }: { searchParams: { pag
                   <tr key={asset.id} className="hover:bg-muted/20 transition-colors group">
                     <td className="px-4 py-3">
                       <span className="font-mono text-xs font-bold text-secondary bg-secondary/10 border border-secondary/15 px-2 py-1 rounded">
-                        {formatTagNumber(asset.tagNumber)}
+                        {asset.tagNumber}
                       </span>
                     </td>
                     <td className="px-4 py-3">
@@ -169,7 +195,7 @@ export default async function AssetsPage({ searchParams }: { searchParams: { pag
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
                       <span className="font-mono text-[10px] font-bold text-secondary bg-secondary/10 border border-secondary/15 px-2 py-0.5 rounded">
-                        {formatTagNumber(asset.tagNumber)}
+                        {asset.tagNumber}
                       </span>
                       <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border ${statusStyles[asset.status] || ""}`}>
                         {statusLabels[asset.status] || asset.status}
