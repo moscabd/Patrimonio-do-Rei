@@ -42,9 +42,11 @@ const statusLabels: Record<string, string> = {
   RESERVE: 'Reserva',
 };
 
-function formatCurrency(value: number | null): string {
-  if (!value) return 'R$ 0,00';
-  return `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+function formatCurrency(value: any): string {
+  if (value === null || value === undefined) return 'R$ 0,00';
+  const num = Number(value);
+  if (isNaN(num)) return 'R$ 0,00';
+  return `R$ ${num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 function sanitizePdfText(text: string): string {
@@ -58,9 +60,11 @@ function sanitizePdfText(text: string): string {
     .trim();
 }
 
-function formatDate(date: string | Date | null): string {
+function formatDate(date: any): string {
   if (!date) return '-';
-  return new Date(date).toLocaleDateString('pt-BR');
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return '-';
+  return d.toLocaleDateString('pt-BR');
 }
 
 async function drawHeader(page: any, font: PDFFont, boldFont: PDFFont, committee: any, title: string, subtitle: string) {
