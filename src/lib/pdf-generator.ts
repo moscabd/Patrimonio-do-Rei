@@ -48,9 +48,14 @@ function formatCurrency(value: number | null): string {
 }
 
 function sanitizePdfText(text: string): string {
-  return text
-    .replace(/•/g, '-')
-    .replace(/[^\x20-\x7E\xA0-\xFF]/g, '');
+  if (!text) return '';
+  return String(text)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[•–—]/g, '-')
+    .replace(/["""''´`]/g, "'")
+    .replace(/[^\x20-\x7E]/g, '')
+    .trim();
 }
 
 function formatDate(date: string | Date | null): string {
