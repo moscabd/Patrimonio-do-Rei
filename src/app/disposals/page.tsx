@@ -2,6 +2,7 @@ import Shell from "@/components/layout/Shell";
 import { requireAuth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import PdfButton from "@/components/disposals/PdfButton";
+import DisposalList from "@/components/disposals/DisposalList";
 import {
   Trash2,
   Gift,
@@ -97,79 +98,7 @@ export default async function DisposalsPage() {
           })}
         </div>
 
-        {/* Table */}
-        <div className="bg-card border border-border rounded-2xl overflow-hidden">
-          <div className="hidden md:block overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="border-b border-border bg-muted/30">
-                  <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-secondary">Descrição</th>
-                  <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-secondary text-center">Qtd</th>
-                  <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-secondary">Valor</th>
-                  <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-secondary">Data</th>
-                  <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-secondary text-center">Motivo</th>
-                  <th className="px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-secondary">Observações</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {disposals.map((d) => {
-                  const config = reasonConfig[d.reason] || { color: "text-muted-foreground", bg: "bg-muted border-border", label: d.reason };
-                  return (
-                    <tr key={d.id} className="hover:bg-muted/20 transition-colors">
-                      <td className="px-4 py-3">
-                        <span className="text-sm font-medium text-foreground">{d.description}</span>
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <span className="text-sm font-bold text-foreground">{d.quantity}</span>
-                      </td>
-                      <td className="px-4 py-3 text-sm font-bold text-foreground">
-                        {formatValue(d.value)}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-muted-foreground">
-                        {formatDate(d.date)}
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded-full border ${config.bg} ${config.color}`}>
-                          {config.label}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-muted-foreground">
-                        {d.notes || '-'}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Mobile View */}
-          <div className="md:hidden divide-y divide-border">
-            {disposals.map((d) => {
-              const config = reasonConfig[d.reason] || { color: "text-muted-foreground", bg: "bg-muted border-border", label: d.reason };
-              return (
-                <div key={d.id} className="p-4 hover:bg-muted/20 transition-colors">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{d.description}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{formatDate(d.date)}</p>
-                    </div>
-                    <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded-full border ${config.bg} ${config.color}`}>
-                      {config.label}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-muted-foreground">{d.quantity}x</span>
-                    <span className="font-bold text-foreground">{formatValue(d.value)}</span>
-                  </div>
-                  {d.notes && (
-                    <p className="text-xs text-muted-foreground mt-2">{d.notes}</p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <DisposalList disposals={disposals} />
       </div>
     </Shell>
   );

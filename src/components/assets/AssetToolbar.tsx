@@ -105,6 +105,11 @@ export default function AssetToolbar({ assets }: { assets: any[] }) {
     }
   };
 
+  const handleGeneratePdf = () => {
+    alert("O relatório PDF profissional contendo todos os patrimônios está sendo gerado e abrirá em uma nova aba. Por favor, aguarde alguns segundos!");
+    window.open('/api/pdf/report', '_blank');
+  };
+
   return (
     <>
       <div className="flex flex-wrap gap-3">
@@ -128,7 +133,7 @@ export default function AssetToolbar({ assets }: { assets: any[] }) {
           <Download className="w-4 h-4" /> Exportar
         </button>
         <button 
-          onClick={() => window.open('/api/pdf/report', '_blank')}
+          onClick={handleGeneratePdf}
           className="flex items-center gap-2 px-4 py-2.5 border border-secondary/30 text-secondary rounded-xl text-sm font-semibold hover:bg-secondary/10 transition-all"
         >
           <FileDown className="w-4 h-4" /> Relatório PDF
