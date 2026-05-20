@@ -166,19 +166,21 @@ export default async function AssetsPage({ searchParams }: { searchParams: { pag
                 </button>
               )}
 
-              {getPageNumbers(totalPages).map(page => (
-                <Link
-                  key={page}
-                  href={`/assets?page=${page}`}
-                  className={`min-w-[32px] px-2 py-1.5 text-center rounded-lg font-bold transition-colors ${
-                    page === currentPage
-                      ? 'bg-secondary text-background'
-                      : 'border border-border hover:bg-muted text-foreground'
-                  }`}
-                >
-                  {page}
-                </Link>
-              ))}
+              <div className="flex gap-1 flex-wrap items-center max-h-36 overflow-auto p-1">
+                {getPageNumbers(totalPages).map(page => (
+                  <Link
+                    key={page}
+                    href={`/assets?page=${page}`}
+                    className={`whitespace-nowrap min-w-[32px] px-2 py-1.5 text-center rounded-lg font-bold transition-colors ${
+                      page === currentPage
+                        ? 'bg-secondary text-background'
+                        : 'border border-border hover:bg-muted text-foreground'
+                    }`}
+                  >
+                    {page}
+                  </Link>
+                ))}
+              </div>
 
               {currentPage < totalPages ? (
                 <Link href={`/assets?page=${currentPage + 1}`} className="p-1.5 border border-border rounded-lg hover:bg-muted transition-colors text-foreground">
