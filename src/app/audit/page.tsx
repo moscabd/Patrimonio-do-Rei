@@ -10,8 +10,10 @@ import {
 } from "lucide-react";
 
 import prisma from "@/lib/prisma";
+import { requireAuth } from "@/lib/auth";
 
 export default async function AuditPage() {
+  const user = await requireAuth();
   const audits = await prisma.audit.findMany({
     include: { auditor: true }
   });
@@ -19,7 +21,7 @@ export default async function AuditPage() {
   const totalAssets = await prisma.asset.count();
   
   return (
-    <Shell>
+    <Shell user={user}>
       <div className="space-y-6">
         <div className="animate-in flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
           <div>

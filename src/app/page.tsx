@@ -12,8 +12,10 @@ import {
 } from "lucide-react";
 
 import prisma from "@/lib/prisma";
+import { requireAuth } from "@/lib/auth";
 
 export default async function Dashboard() {
+  const user = await requireAuth();
   const totalAssets = await prisma.asset.count();
   const activeAssets = await prisma.asset.count({ where: { status: { in: ['ACTIVE', 'IN_USE'] } } });
   const maintenanceAssets = await prisma.asset.count({ where: { status: 'MAINTENANCE' } });
@@ -31,7 +33,7 @@ export default async function Dashboard() {
     { label: "Alertas", value: "0", icon: AlertTriangle, color: "text-yellow-400", bg: "bg-yellow-500/15", trend: "0" },
   ];
   return (
-    <Shell>
+    <Shell user={user}>
       <div className="space-y-8">
         {/* Hero Header */}
         <div className="animate-in flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 bg-card rounded-2xl p-6 lg:p-8 border border-border">

@@ -1,4 +1,3 @@
-
 import Shell from "@/components/layout/Shell";
 import {
   FileText,
@@ -12,6 +11,7 @@ import {
 } from "lucide-react";
 
 import prisma from "@/lib/prisma";
+import { requireAuth } from "@/lib/auth";
 
 const typeIcon: Record<string, { color: string; bg: string }> = {
   PDF: { color: "text-emerald-400", bg: "bg-emerald-500/15" },
@@ -20,12 +20,13 @@ const typeIcon: Record<string, { color: string; bg: string }> = {
 };
 
 export default async function DocumentsPage() {
+  const user = await requireAuth();
   const files = await prisma.document.findMany({
     orderBy: { createdAt: 'desc' }
   });
 
   return (
-    <Shell>
+    <Shell user={user}>
       <div className="space-y-6">
         <div className="animate-in flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
           <div>

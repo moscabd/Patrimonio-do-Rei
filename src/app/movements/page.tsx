@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import prisma from "@/lib/prisma";
+import { requireAuth } from "@/lib/auth";
 
 const typeConfig: Record<string, { icon: typeof ArrowLeftRight; color: string; bg: string; label: string }> = {
   TRANSFER: { icon: ArrowLeftRight, color: "text-blue-400", bg: "bg-blue-500/15 border-blue-500/20", label: "Transferência" },
@@ -19,6 +20,7 @@ const typeConfig: Record<string, { icon: typeof ArrowLeftRight; color: string; b
 };
 
 export default async function MovementsPage() {
+  const user = await requireAuth();
   const movements = await prisma.movement.findMany({
     include: { asset: true, performedBy: true },
     orderBy: { createdAt: 'desc' }
@@ -29,7 +31,7 @@ export default async function MovementsPage() {
   const returns = movements.filter(m => m.type === 'RETURN').length;
 
   return (
-    <Shell>
+    <Shell user={user}>
       <div className="space-y-6">
         <div className="animate-in flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
           <div>
