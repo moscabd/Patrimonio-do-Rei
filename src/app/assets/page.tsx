@@ -48,7 +48,7 @@ function getPageNumbers(total: number): number[] {
 
 export default async function AssetsPage({ searchParams }: { searchParams: { page?: string } }) {
   const currentPage = Number(searchParams.page) || 1;
-  const pageSize = 100;
+  const pageSize = 50;
 
   const totalAssets = await prisma.asset.count();
   const totalPages = Math.ceil(totalAssets / pageSize) || 1;
@@ -153,7 +153,7 @@ export default async function AssetsPage({ searchParams }: { searchParams: { pag
             ))}
           </div>
 
-          <div className="px-6 py-4 bg-muted/20 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-muted-foreground">
+          <div className="px-6 py-4 bg-muted/20 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-muted-foreground sticky bottom-0 z-40">
             <span>Página {currentPage} de {totalPages}</span>
             <div className="flex items-center gap-1">
               {currentPage > 1 ? (

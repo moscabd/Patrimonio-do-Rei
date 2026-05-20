@@ -16,29 +16,22 @@ export default function AssetToolbar({ assets }: { assets: any[] }) {
     setMounted(true);
   }, []);
 
-  const handleExport = () => {
-    if (assets.length === 0) return;
-    
-    const csvContent = [
-      ["Código", "Nome", "Categoria", "Status", "Valor", "Local"].join(";"),
-      ...assets.map(a => [
-        a.tagNumber,
-        a.name,
-        a.category,
-        a.status,
-        a.currentValue || "",
-        a.physicalLocation || ""
-      ].join(";"))
-    ].join("\n");
-
-    const blob = new Blob(["\ufeff" + csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", `patrimonios_${new Date().getTime()}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleExport = async () => {
+    try {
+      const res = await fetch('/api/export');
+      if (!res.ok) throw new Error('Erro ao gerar exportação');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      // filename comes from header but fallback
+      link.setAttribute('download', `patrimonios_export_${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Erro');
+    }
   };
 
   const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
