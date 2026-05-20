@@ -292,3 +292,16 @@ model AuditLog {
   ip        String?
   createdAt DateTime @default(now())
 }
+
+// 9. Comissão de Patrimônio
+model Committee {
+  id              String   @id @default(cuid())
+  organization    String   @default("Núcleo REI RABINO")
+  location        String   @default("PERDIGÃO/MG")
+  president       String   @default("Càssio Eduardo Paiva")
+  vicePresident   String   @default("EVANDRO APARECIDO MACHADO")
+  fiscalPresident String   @default("JÕAO BATISTA ALVES SORES")
+  member1         String   @default("ANA CÉLIA ALVARENGA SOARES")
+  member2         String   @default("LETÍCIA MORAIS")
+  updatedAt       DateTime @updatedAt
+}

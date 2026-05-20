@@ -19,6 +19,24 @@ async function seed() {
 
     console.log('✅ Default company created:', company.name);
 
+    // Create committee information
+    const committee = await prisma.committee.upsert({
+      where: { id: 'default-committee' },
+      update: {},
+      create: {
+        id: 'default-committee',
+        organization: 'Núcleo REI RABINO',
+        location: 'PERDIGÃO/MG',
+        president: 'Càssio Eduardo Paiva',
+        vicePresident: 'EVANDRO APARECIDO MACHADO',
+        fiscalPresident: 'JÕAO BATISTA ALVES SORES',
+        member1: 'ANA CÉLIA ALVARENGA SOARES',
+        member2: 'LETÍCIA MORAIS',
+      }
+    });
+
+    console.log('✅ Committee information created');
+
     // Create default admin user
     const hashedPassword = await bcryptjs.hash('Rei@1404', 10);
     
