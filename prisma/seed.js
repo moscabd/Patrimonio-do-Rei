@@ -5,17 +5,19 @@ const prisma = new PrismaClient();
 
 async function seed() {
   // Create default admin user
-  const hashedPassword = await bcryptjs.hash('admin123', 10);
+  const hashedPassword = await bcryptjs.hash('Rei@1404', 10);
   
   try {
     const user = await prisma.user.upsert({
       where: { email: 'admin@rei.com' },
       update: {
+        username: 'Admin',
         password: hashedPassword,
         name: 'Administrador',
         role: 'SUPER_ADMIN'
       },
       create: {
+        username: 'Admin',
         email: 'admin@rei.com',
         name: 'Administrador',
         password: hashedPassword,
@@ -23,7 +25,7 @@ async function seed() {
       }
     });
 
-    console.log('✅ Default admin user seeded:', user.email);
+    console.log('✅ Default admin user seeded:', user.username, '/ Rei@1404');
   } catch (error) {
     console.error('Error seeding user:', error);
     process.exit(1);

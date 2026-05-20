@@ -58,17 +58,17 @@ export default function LoginPage() {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email */}
+            {/* Username */}
             <div>
               <label htmlFor="email" className="block text-xs font-semibold uppercase tracking-widest text-secondary mb-2">
-                E-mail
+                Usuário
               </label>
               <input
                 id="email"
-                type="email"
+                type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="seu@email.com"
+                placeholder="Admin"
                 className="w-full px-4 py-2.5 border border-border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all"
                 required
                 disabled={isLoading}
@@ -113,7 +113,7 @@ export default function LoginPage() {
 
         {/* Debug Info */}
         <div className="mt-4 text-center text-xs text-muted-foreground">
-          <p>Para testes: admin@rei.com / admin123</p>
+          <p>Admin / Rei@1404</p>
         </div>
       </div>
     </div>

@@ -14,6 +14,7 @@ datasource db {
 // 1. Gestão de Usuários e Permissões
 model User {
   id            String    @id @default(cuid())
+  username      String    @unique
   email         String    @unique
   name          String
   password      String

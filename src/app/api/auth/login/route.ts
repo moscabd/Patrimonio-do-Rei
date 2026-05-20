@@ -9,18 +9,24 @@ export async function POST(request: NextRequest) {
 
     if (!email || !password) {
       return NextResponse.json(
-        { error: 'Email and password required' },
+        { error: 'Usuário e senha obrigatórios' },
         { status: 400 }
       );
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email },
+    // Busca por email ou username
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: email },
+          { username: email }
+        ]
+      }
     });
 
     if (!user) {
       return NextResponse.json(
-        { error: 'Invalid credentials' },
+        { error: 'Credenciais inválidas' },
         { status: 401 }
       );
     }
@@ -29,7 +35,7 @@ export async function POST(request: NextRequest) {
 
     if (!passwordValid) {
       return NextResponse.json(
-        { error: 'Invalid credentials' },
+        { error: 'Credenciais inválidas' },
         { status: 401 }
       );
     }
@@ -38,13 +44,13 @@ export async function POST(request: NextRequest) {
     await setSessionCookie(token);
 
     return NextResponse.json(
-      { user: { id: user.id, email: user.email, name: user.name, role: user.role } },
+      { user: { id: user.id, email: user.email, username: user.username, name: user.name, role: user.role } },
       { status: 200 }
     );
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Erro interno do servidor' },
       { status: 500 }
     );
   }
