@@ -110,11 +110,6 @@ export default function LoginPage() {
             </p>
           </div>
         </div>
-
-        {/* Debug Info */}
-        <div className="mt-4 text-center text-xs text-muted-foreground">
-          <p>Admin / Rei@1404</p>
-        </div>
       </div>
     </div>
   );
