@@ -47,6 +47,12 @@ function formatCurrency(value: number | null): string {
   return `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+function sanitizePdfText(text: string): string {
+  return text
+    .replace(/•/g, '-')
+    .replace(/[^\x20-\x7E\xA0-\xFF]/g, '');
+}
+
 function formatDate(date: string | Date | null): string {
   if (!date) return '-';
   return new Date(date).toLocaleDateString('pt-BR');
@@ -56,7 +62,7 @@ async function drawHeader(page: any, font: PDFFont, boldFont: PDFFont, committee
   const width = page.getWidth();
   let y = page.getHeight() - 40;
 
-  page.drawText('👑 PATRIMÔNIO DO REI', {
+  page.drawText('PATRIMÔNIO DO REI', {
     x: width / 2 - 100,
     y,
     size: 18,
@@ -76,7 +82,7 @@ async function drawHeader(page: any, font: PDFFont, boldFont: PDFFont, committee
 
   const org = committee?.organization || 'Núcleo REI RABINO';
   const cnpj = committee?.cnpj || '09.621.597/0001-66';
-  page.drawText(`${org} • CNPJ: ${cnpj}`, {
+  page.drawText(`${sanitizePdfText(org)} - CNPJ: ${cnpj}`, {
     x: width / 2 - 100,
     y,
     size: 8,
@@ -85,9 +91,9 @@ async function drawHeader(page: any, font: PDFFont, boldFont: PDFFont, committee
   });
   y -= 12;
 
-  const location = committee?.location || 'PERDIGÃO/MG';
+  const location = sanitizePdfText(committee?.location || 'PERDIGÃO/MG');
   const date = new Date().toLocaleDateString('pt-BR');
-  page.drawText(`${location} • ${date}`, {
+  page.drawText(`${location} - ${date}`, {
     x: width / 2 - 60,
     y,
     size: 7,
@@ -117,7 +123,7 @@ async function drawFooter(page: any, font: PDFFont, currentPage: number, totalPa
     color: rgb(0.9, 0.9, 0.9),
   });
 
-  const text = `Patrimônio do Rei • Relatório gerado em ${new Date().toLocaleDateString('pt-BR')} • Página ${currentPage} de ${totalPages}`;
+  const text = `Patrimônio do Rei - Relatório gerado em ${new Date().toLocaleDateString('pt-BR')} - Página ${currentPage} de ${totalPages}`;
   page.drawText(text, {
     x: width / 2 - text.length * 2.5,
     y: y - 5,
@@ -158,7 +164,7 @@ async function drawCommittee(page: any, font: PDFFont, boldFont: PDFFont, commit
     });
     y -= 10;
 
-    page.drawText(member.name, {
+    page.drawText(sanitizePdfText(member.name), {
       x: 60,
       y,
       size: 8,
@@ -202,7 +208,7 @@ export async function generateAssetPDF(asset: any, committee: any): Promise<Uint
     font: boldFont,
     color: WHITE,
   });
-  page.drawText(asset.tagNumber, {
+  page.drawText(sanitizePdfText(asset.tagNumber), {
     x: page.getWidth() / 2 - 40,
     y: y - 42,
     size: 20,
@@ -222,14 +228,14 @@ export async function generateAssetPDF(asset: any, committee: any): Promise<Uint
   y -= 15;
 
   const infoFields = [
-    { label: 'Nome', value: asset.name },
-    { label: 'Categoria', value: asset.category || '-' },
-    { label: 'Subcategoria', value: asset.subcategory || '-' },
-    { label: 'Marca', value: asset.brand || '-' },
-    { label: 'Modelo', value: asset.model || '-' },
-    { label: 'Nº Série', value: asset.serialNumber || '-' },
-    { label: 'Cód. Interno', value: asset.internalCode || '-' },
-    { label: 'Cód. Barras', value: asset.barcode || '-' },
+    { label: 'Nome', value: sanitizePdfText(asset.name) },
+    { label: 'Categoria', value: sanitizePdfText(asset.category || '-') },
+    { label: 'Subcategoria', value: sanitizePdfText(asset.subcategory || '-') },
+    { label: 'Marca', value: sanitizePdfText(asset.brand || '-') },
+    { label: 'Modelo', value: sanitizePdfText(asset.model || '-') },
+    { label: 'Nº Série', value: sanitizePdfText(asset.serialNumber || '-') },
+    { label: 'Cód. Interno', value: sanitizePdfText(asset.internalCode || '-') },
+    { label: 'Cód. Barras', value: sanitizePdfText(asset.barcode || '-') },
   ];
 
   for (let i = 0; i < infoFields.length; i += 2) {
@@ -270,7 +276,7 @@ export async function generateAssetPDF(asset: any, committee: any): Promise<Uint
     { label: 'Valor Aquisição', value: formatCurrency(asset.acquisitionValue) },
     { label: 'Valor Atual', value: formatCurrency(asset.currentValue) },
     { label: 'Data Aquisição', value: formatDate(asset.acquisitionDate) },
-    { label: 'Nota Fiscal', value: asset.invoiceNumber || '-' },
+    { label: 'Nota Fiscal', value: sanitizePdfText(asset.invoiceNumber || '-') },
   ];
 
   for (let i = 0; i < finFields.length; i += 2) {
@@ -298,9 +304,9 @@ export async function generateAssetPDF(asset: any, committee: any): Promise<Uint
   });
   y -= 15;
 
-  page.drawText(`Local: ${asset.physicalLocation || '-'}`, { x: 40, y, size: 9, font: font, color: DARK });
+  page.drawText(`Local: ${sanitizePdfText(asset.physicalLocation || '-')}`, { x: 40, y, size: 9, font: font, color: DARK });
   y -= 12;
-  page.drawText(`Responsável: ${asset.responsibleName || '-'}`, { x: 40, y, size: 9, font: font, color: DARK });
+  page.drawText(`Responsável: ${sanitizePdfText(asset.responsibleName || '-')}`, { x: 40, y, size: 9, font: font, color: DARK });
   y -= 30;
 
   // Committee
@@ -378,8 +384,9 @@ export async function generateReportPDF(assets: any[], committee: any, filters: 
       y -= 12;
 
       Object.entries(categoryStats).forEach(([cat, stats]) => {
-        page.drawText(cat, { x: 40, y, size: 7, font: font, color: DARK });
-        page.drawText(`${stats.count} itens • ${formatCurrency(stats.value)}`, { x: 350, y, size: 7, font: font, color: MUTED });
+        const safeCat = sanitizePdfText(cat);
+        page.drawText(safeCat, { x: 40, y, size: 7, font: font, color: DARK });
+        page.drawText(`${stats.count} itens - ${formatCurrency(stats.value)}`, { x: 350, y, size: 7, font: font, color: MUTED });
         y -= 10;
       });
       y -= 10;
@@ -390,8 +397,8 @@ export async function generateReportPDF(assets: any[], committee: any, filters: 
 
       let statusX = 40;
       Object.entries(statusStats).forEach(([status, count]) => {
-        const label = statusLabels[status] || status;
-        page.drawText(`${label}: ${count}`, { x: statusX, y, size: 7, font: font, color: DARK });
+      const safeStatusLabel = statusLabels[status] || sanitizePdfText(status);
+        page.drawText(`${safeStatusLabel}: ${count}`, { x: statusX, y, size: 7, font: font, color: DARK });
         statusX += 80;
       });
       y -= 25;
@@ -430,25 +437,25 @@ export async function generateReportPDF(assets: any[], committee: any, filters: 
       });
 
       colX = 45;
-      page.drawText(asset.tagNumber, { x: colX, y: y - 8, size: 6, font: boldFont, color: GOLD });
+      page.drawText(sanitizePdfText(asset.tagNumber), { x: colX, y: y - 8, size: 6, font: boldFont, color: GOLD });
       colX += colWidths[0];
 
-      const name = asset.name.length > 25 ? asset.name.substring(0, 25) + '...' : asset.name;
+      const name = sanitizePdfText(asset.name.length > 25 ? asset.name.substring(0, 25) + '...' : asset.name);
       page.drawText(name, { x: colX, y: y - 8, size: 6, font: font, color: DARK });
       colX += colWidths[1];
 
-      const cat = (asset.category || '-').length > 15 ? (asset.category || '-').substring(0, 15) : (asset.category || '-');
+      const cat = sanitizePdfText(((asset.category || '-').length > 15 ? (asset.category || '-').substring(0, 15) : (asset.category || '-')));
       page.drawText(cat, { x: colX, y: y - 8, size: 6, font: font, color: DARK });
       colX += colWidths[2];
 
-      const loc = (asset.physicalLocation || '-').length > 15 ? (asset.physicalLocation || '-').substring(0, 15) : (asset.physicalLocation || '-');
+      const loc = sanitizePdfText(((asset.physicalLocation || '-').length > 15 ? (asset.physicalLocation || '-').substring(0, 15) : (asset.physicalLocation || '-')));
       page.drawText(loc, { x: colX, y: y - 8, size: 6, font: font, color: DARK });
       colX += colWidths[3];
 
       page.drawText(formatCurrency(asset.acquisitionValue), { x: colX, y: y - 8, size: 6, font: font, color: DARK });
       colX += colWidths[4];
 
-      const status = statusLabels[asset.status] || asset.status;
+      const status = sanitizePdfText(statusLabels[asset.status] || asset.status);
       page.drawText(status, { x: colX, y: y - 8, size: 6, font: font, color: DARK });
 
       y -= 14;
@@ -534,9 +541,9 @@ export async function generateDisposalPDF(disposals: any[], committee: any): Pro
       y -= 12;
 
       Object.entries(byReason).forEach(([reason, stats]) => {
-        const label = reasonLabels[reason] || reason;
+        const label = sanitizePdfText(reasonLabels[reason] || reason);
         page.drawText(label, { x: 40, y, size: 7, font: font, color: DARK });
-        page.drawText(`${stats.count} itens • ${formatCurrency(stats.value)}`, { x: 350, y, size: 7, font: font, color: MUTED });
+        page.drawText(`${stats.count} itens - ${formatCurrency(stats.value)}`, { x: 350, y, size: 7, font: font, color: MUTED });
         y -= 10;
       });
       y -= 15;
@@ -575,7 +582,7 @@ export async function generateDisposalPDF(disposals: any[], committee: any): Pro
       });
 
       colX = 45;
-      const desc = d.description.length > 30 ? d.description.substring(0, 30) + '...' : d.description;
+      const desc = sanitizePdfText(d.description.length > 30 ? d.description.substring(0, 30) + '...' : d.description);
       page.drawText(desc, { x: colX, y: y - 8, size: 6, font: font, color: DARK });
       colX += colWidths[0];
 
@@ -588,7 +595,7 @@ export async function generateDisposalPDF(disposals: any[], committee: any): Pro
       page.drawText(formatDate(d.date), { x: colX, y: y - 8, size: 6, font: font, color: DARK });
       colX += colWidths[3];
 
-      const reason = reasonLabels[d.reason] || d.reason;
+      const reason = sanitizePdfText(reasonLabels[d.reason] || d.reason);
       page.drawText(reason, { x: colX, y: y - 8, size: 6, font: font, color: DARK });
 
       y -= 14;

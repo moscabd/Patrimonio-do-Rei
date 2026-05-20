@@ -33,9 +33,14 @@ function formatValue(value: any): string {
 export default async function DisposalsPage() {
   const user = await requireAuth();
 
-  const disposals = await prisma.disposal.findMany({
-    orderBy: { date: 'desc' }
-  });
+  let disposals: any[] = [];
+  try {
+    disposals = await prisma.disposal.findMany({
+      orderBy: { date: 'desc' }
+    });
+  } catch (error) {
+    console.error('Erro ao carregar descartes:', error);
+  }
 
   const totalItems = disposals.reduce((sum, d) => sum + d.quantity, 0);
   const totalValue = disposals.reduce((sum, d) => sum + Number(d.value), 0);
