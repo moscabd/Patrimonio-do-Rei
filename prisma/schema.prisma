@@ -306,3 +306,24 @@ model Committee {
   member2         String   @default("LETÍCIA MORAIS")
   updatedAt       DateTime @updatedAt
 }
+
+// 10. Descarte e Doação de Bens
+model Disposal {
+  id          String   @id @default(cuid())
+  description String
+  quantity    Int      @default(1)
+  value       Decimal  @db.Decimal(14, 2)
+  date        DateTime
+  reason      DisposalReason
+  notes       String?
+  createdAt   DateTime @default(now())
+}
+
+enum DisposalReason {
+  DESCARTADA
+  DOADA
+  QUEBROU
+  ESTRAGOU
+  ROUBADA
+  PERDIDA
+}

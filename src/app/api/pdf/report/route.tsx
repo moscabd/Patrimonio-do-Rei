@@ -3,11 +3,12 @@ import prisma from '@/lib/prisma';
 import { pdf } from '@react-pdf/renderer';
 import { ReportPDF } from '@/components/pdf/ReportPDF';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const category = searchParams.get('category') || undefined;
-    const search = searchParams.get('search') || undefined;
+    const category = request.nextUrl.searchParams.get('category') || undefined;
+    const search = request.nextUrl.searchParams.get('search') || undefined;
 
     const whereFilter: any = {};
     if (category) whereFilter.category = category;
@@ -45,7 +46,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Erro ao gerar relatório PDF:', error);
     return NextResponse.json(
-      { error: 'Erro ao gerar relatório PDF' },
+      { error: 'Erro ao gerar relatório PDF: ' + (error instanceof Error ? error.message : 'Erro desconhecido') },
       { status: 500 }
     );
   }

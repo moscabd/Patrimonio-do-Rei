@@ -15,7 +15,8 @@ import {
   X,
   FileSpreadsheet,
   LogOut,
-  Settings
+  Settings,
+  Trash2
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -24,6 +25,7 @@ import { useRouter } from "next/navigation";
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/" },
   { icon: Package, label: "Patrimônios", href: "/assets" },
+  { icon: Trash2, label: "Descarte/Doação", href: "/disposals" },
   { icon: ArrowLeftRight, label: "Movimentações", href: "/movements" },
   { icon: ClipboardCheck, label: "Auditoria", href: "/audit" },
   { icon: FileText, label: "Documentos", href: "/documents" },

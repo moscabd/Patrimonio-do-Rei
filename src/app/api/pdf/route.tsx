@@ -3,10 +3,11 @@ import prisma from '@/lib/prisma';
 import { pdf } from '@react-pdf/renderer';
 import { AssetPDF } from '@/components/pdf/AssetPDF';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const assetId = searchParams.get('id');
+    const assetId = request.nextUrl.searchParams.get('id');
 
     if (!assetId) {
       return NextResponse.json(
@@ -41,7 +42,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Erro ao gerar PDF:', error);
     return NextResponse.json(
-      { error: 'Erro ao gerar PDF' },
+      { error: 'Erro ao gerar PDF: ' + (error instanceof Error ? error.message : 'Erro desconhecido') },
       { status: 500 }
     );
   }

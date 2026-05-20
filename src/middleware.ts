@@ -6,7 +6,7 @@ const SESSION_TOKEN_NAME = 'auth_token';
 const publicRoutes = ['/login', '/api/auth/login'];
 
 // Rotas que precisam de autenticação
-const protectedRoutes = ['/assets', '/audit', '/movements', '/documents', '/companies', '/converter'];
+const protectedRoutes = ['/assets', '/audit', '/movements', '/documents', '/companies', '/converter', '/disposals', '/settings'];
 
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get(SESSION_TOKEN_NAME)?.value;
