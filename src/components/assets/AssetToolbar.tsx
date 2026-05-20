@@ -58,6 +58,9 @@ export default function AssetToolbar({ assets }: { assets: any[] }) {
         formData.append('file', file);
         
         const companyId = await getDefaultCompanyIdForImport();
+        if (companyId) {
+          formData.append('companyId', companyId);
+        }
         
         const response = await fetch('/api/import', {
           method: 'POST',
@@ -70,11 +73,16 @@ export default function AssetToolbar({ assets }: { assets: any[] }) {
           throw new Error(result.error || 'Erro ao importar planilha');
         }
 
-        alert(result.message);
+        alert(result.message || 'Importação concluída!');
         window.location.reload();
       } else {
+        // CSV path
         const text = await file.text();
         const lines = text.split("\n").filter(l => l.trim().length > 0);
+        
+        if (lines.length < 2) {
+          throw new Error('Arquivo CSV vazio ou inválido');
+        }
         
         const header = lines[0].split(";").map(h => h.trim().toLowerCase());
         const dataToImport = lines.slice(1).map(line => {
@@ -97,15 +105,19 @@ export default function AssetToolbar({ assets }: { assets: any[] }) {
             currentValue: get(["valor", "valor de aquisição"] ) || "",
             description: get(["descrição", "observações / detalhes", "local"] ) || ""
           };
-        });
+        }).filter(item => item.tagNumber && item.name);
+
+        if (dataToImport.length === 0) {
+          throw new Error('Nenhum dado válido encontrado no CSV');
+        }
 
         await importAssets(dataToImport);
-        alert("Planilha importada com sucesso!");
+        alert(`Importados ${dataToImport.length} itens com sucesso!`);
       }
       setIsImportModalOpen(false);
     } catch (err) {
       console.error('Erro ao importar:', err);
-      alert("Erro ao importar. Verifique o formato.");
+      alert(err instanceof Error ? err.message : "Erro ao importar. Verifique o formato.");
     } finally {
       setLoading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
