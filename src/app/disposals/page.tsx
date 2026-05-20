@@ -1,6 +1,7 @@
 import Shell from "@/components/layout/Shell";
 import { requireAuth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import PdfButton from "@/components/disposals/PdfButton";
 import {
   Trash2,
   Gift,
@@ -12,6 +13,8 @@ import {
   FileDown
 } from "lucide-react";
 import Link from "next/link";
+
+export const dynamic = 'force-dynamic';
 
 const reasonConfig: Record<string, { icon: any; color: string; bg: string; label: string }> = {
   DESCARTADA: { icon: Trash2, color: "text-red-400", bg: "bg-red-500/15 border-red-500/20", label: "Descartado" },
@@ -59,15 +62,10 @@ export default async function DisposalsPage() {
         <div className="animate-in flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
           <div>
             <h2 className="text-2xl lg:text-3xl font-black text-foreground tracking-tight">Descarte e Doação</h2>
-            <p className="text-muted-foreground text-sm mt-1">{totalItems} itens • {formatValue(totalValue)} total</p>
+            <p className="text-muted-foreground text-sm mt-1">{totalItems} itens - {formatValue(totalValue)} total</p>
           </div>
           <div className="flex gap-3">
-            <button
-              onClick={() => window.open('/api/disposals-pdf', '_blank')}
-              className="flex items-center gap-2 px-4 py-2.5 border border-secondary/30 text-secondary rounded-xl text-sm font-semibold hover:bg-secondary/10 transition-all"
-            >
-              <FileDown className="w-4 h-4" /> Relatório PDF
-            </button>
+            <PdfButton />
             <Link
               href="/disposals/new"
               className="flex items-center gap-2 px-5 py-2.5 bg-secondary text-background rounded-xl text-sm font-bold hover:bg-secondary/90 transition-all shadow-lg shadow-secondary/20"
