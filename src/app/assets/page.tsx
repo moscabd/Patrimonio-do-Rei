@@ -46,17 +46,29 @@ function getPageNumbers(total: number): number[] {
   return Array.from({ length: total }, (_, i) => i + 1);
 }
 
-export default async function AssetsPage({ searchParams }: { searchParams: { page?: string } }) {
+export default async function AssetsPage({ searchParams }: { searchParams: { page?: string; category?: string } }) {
   const currentPage = Number(searchParams.page) || 1;
+  const selectedCategory = searchParams.category || '';
   const pageSize = 50;
 
-  const totalAssets = await prisma.asset.count();
+  // Build filter
+  const whereFilter: any = selectedCategory ? { category: selectedCategory } : {};
+
+  const totalAssets = await prisma.asset.count({ where: whereFilter });
   const totalPages = Math.ceil(totalAssets / pageSize) || 1;
 
   const assets = await prisma.asset.findMany({
+    where: whereFilter,
     orderBy: { name: 'asc' },
     skip: (currentPage - 1) * pageSize,
     take: pageSize
+  });
+
+  // Get all unique categories for filter
+  const categories = await prisma.asset.findMany({
+    distinct: ['category'],
+    select: { category: true },
+    orderBy: { category: 'asc' }
   });
 
   return (
@@ -68,6 +80,36 @@ export default async function AssetsPage({ searchParams }: { searchParams: { pag
             <p className="text-muted-foreground text-sm mt-1">{totalAssets} itens cadastrados</p>
           </div>
           <AssetToolbar assets={assets} />
+        </div>
+
+        {/* Category Filter */}
+        <div className="bg-card border border-border rounded-2xl p-4">
+          <p className="text-xs font-bold text-secondary uppercase tracking-widest mb-3">Filtrar por Categoria</p>
+          <div className="flex gap-2 flex-wrap">
+            <Link
+              href="/assets"
+              className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
+                !selectedCategory
+                  ? 'bg-secondary text-background'
+                  : 'border border-border text-foreground hover:bg-muted'
+              }`}
+            >
+              Todas
+            </Link>
+            {categories.map((cat) => (
+              <Link
+                key={cat.category}
+                href={`/assets?category=${encodeURIComponent(cat.category || '')}`}
+                className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
+                  selectedCategory === cat.category
+                    ? 'bg-secondary text-background'
+                    : 'border border-border text-foreground hover:bg-muted'
+                }`}
+              >
+                {cat.category || 'Sem categoria'}
+              </Link>
+            ))}
+          </div>
         </div>
 
         <div className="bg-card border border-border rounded-2xl overflow-hidden">
